@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
+import { AnalyticsProvider } from '@/components/analytics-provider';
 import { ThemeProvider } from '@/components/theme-provider';
 import { dirFor, locales, type Locale } from '@/i18n/config';
 import { cn } from '@/lib/utils';
@@ -64,7 +65,7 @@ export default async function LocaleLayout({
         >
           <NextIntlClientProvider messages={messages} locale={locale}>
             <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-              {children}
+              <AnalyticsProvider>{children}</AnalyticsProvider>
             </ThemeProvider>
           </NextIntlClientProvider>
         </ClerkProvider>

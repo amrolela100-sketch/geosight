@@ -1,3 +1,4 @@
+import { withSentryConfig } from '@sentry/nextjs';
 import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
@@ -16,6 +17,17 @@ const nextConfig = {
       { protocol: 'https', hostname: '**.supabase.co' },
     ],
   },
+  // Workspace packages (@geosight/db, @geosight/shared) use `.js` ESM-style
+  // import suffixes that point at `.ts` files. Tell webpack to resolve those.
+  webpack(config) {
+    config.resolve = config.resolve ?? {};
+    config.resolve.extensionAlias = {
+      ...(config.resolve.extensionAlias ?? {}),
+      '.js': ['.ts', '.tsx', '.js', '.jsx'],
+      '.mjs': ['.mts', '.mjs'],
+    };
+    return config;
+  },
   async headers() {
     return [
       {
@@ -31,4 +43,18 @@ const nextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+// Sentry build-time wrapping only runs when SENTRY_AUTH_TOKEN is set
+// (otherwise the build would fail trying to upload source maps).
+const baseConfig = withNextIntl(nextConfig);
+
+export default process.env.SENTRY_AUTH_TOKEN
+  ? withSentryConfig(baseConfig, {
+      silent: true,
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      widenClientFileUpload: true,
+      hideSourceMaps: true,
+      disableLogger: true,
+    })
+  : baseConfig;

@@ -2,13 +2,10 @@ import 'dotenv/config';
 
 import type { Config } from 'drizzle-kit';
 
-const url = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
-if (!url) {
-  throw new Error(
-    'DATABASE_URL (or DATABASE_URL_UNPOOLED) must be set for drizzle-kit. ' +
-      'See .env.example at the repo root.',
-  );
-}
+// `db:generate` is offline (schema → SQL), so DATABASE_URL is optional here.
+// `db:push` / `db:studio` need a live connection — they'll fail loudly if URL is empty.
+// Migrations must run on the direct (non-pooled) connection.
+const url = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL ?? '';
 
 export default {
   dialect: 'postgresql',
@@ -17,6 +14,4 @@ export default {
   dbCredentials: { url },
   strict: true,
   verbose: true,
-  // Migrations must run on the direct (non-pooled) connection.
-  // Application code uses the pooled URL.
 } satisfies Config;

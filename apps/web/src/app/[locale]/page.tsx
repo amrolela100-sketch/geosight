@@ -1,7 +1,8 @@
+import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
-/** Phase 1 landing placeholder — proves RTL + dark theme + fonts + i18n
- * are wired correctly. The real marketing page lands in a follow-up turn. */
+import { WaitlistForm } from '@/components/waitlist-form';
+
 export default function LandingPage() {
   const t = useTranslations('Landing.hero');
   const common = useTranslations('Common');
@@ -17,7 +18,15 @@ export default function LandingPage() {
         <span className="font-arabic text-lg font-semibold tracking-tight">
           {common('appName')}
         </span>
-        <span className="text-xs text-muted-foreground">{common('tagline')}</span>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="hidden sm:inline">{common('tagline')}</span>
+          <Link
+            href="/sign-in"
+            className="rounded-md border border-border bg-card/40 px-3 py-1.5 text-foreground transition hover:bg-card/70"
+          >
+            {t('signIn')}
+          </Link>
+        </div>
       </header>
 
       <section className="container flex flex-col items-center justify-center gap-8 py-24 text-center md:py-32">
@@ -33,20 +42,7 @@ export default function LandingPage() {
           {t('subtitle')}
         </p>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <button
-            type="button"
-            className="rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-glow transition hover:opacity-90"
-          >
-            {t('ctaPrimary')}
-          </button>
-          <button
-            type="button"
-            className="rounded-lg border border-border bg-card/40 px-6 py-3 text-sm font-medium text-foreground transition hover:bg-card/70"
-          >
-            {t('ctaSecondary')}
-          </button>
-        </div>
+        <WaitlistForm />
       </section>
     </main>
   );

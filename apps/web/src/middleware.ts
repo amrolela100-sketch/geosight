@@ -30,6 +30,8 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 });
 
 export const config = {
-  // Match every route except Next.js internals and static assets.
-  matcher: ['/((?!_next|api/health|.*\\..*).*)'],
+  // Match every route except Next.js internals, static assets, and API routes.
+  // API routes (webhooks, waitlist) handle their own auth via svix/Clerk inside
+  // the handler so the intl rewrite doesn't break them.
+  matcher: ['/((?!_next|api|.*\\..*).*)'],
 };

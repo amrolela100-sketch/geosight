@@ -5,8 +5,42 @@
       "title": "See how your brand surfaces in ChatGPT, Gemini, and Perplexity",
       "subtitle": "Track, measure, and improve your brand's visibility in generative AI engines — with accuracy tuned for every Arabic dialect.",
       "ctaPrimary": "Join the waitlist",
-      "ctaSecondary": "Watch the demo"
+      "ctaSecondary": "Watch the demo",
+      "signIn": "Sign in"
+    },
+    "waitlist": {
+      "title": "Join the waitlist",
+      "subtitle": "We're opening the beta gradually for selected Arabic marketing agencies.",
+      "fullName": "Full name",
+      "email": "Email",
+      "company": "Company (optional)",
+      "submit": "Join now",
+      "submitting": "Submitting...",
+      "successTitle": "You're on the list",
+      "successBody": "We've sent you a confirmation email. We'll reach out as new seats open up.",
+      "errorGeneric": "Something went wrong, please try again."
     }
+  },
+  "Auth": {
+    "signIn": {
+      "title": "Sign in",
+      "subtitle": "Welcome back to GeoSight."
+    },
+    "signUp": {
+      "title": "Create your account",
+      "subtitle": "Start measuring your brand's visibility in AI answers."
+    }
+  },
+  "Dashboard": {
+    "brand": "GeoSight",
+    "welcomeTitle": "Welcome to your dashboard",
+    "welcomeSubtitle": "Track how your brand surfaces in ChatGPT, Gemini, and Perplexity.",
+    "metrics": {
+      "brands": { "label": "Brands", "hint": "Add your first brand to get started" },
+      "keywords": { "label": "Tracked keywords", "hint": "Add keywords to start tracking" },
+      "scans": { "label": "Completed scans", "hint": "No scans run yet" }
+    },
+    "emptyState": "Start by adding your first brand and keywords."
   },
   "Common": {
     "appName": "GeoSight",
