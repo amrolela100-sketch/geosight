@@ -40,7 +40,51 @@
       "keywords": { "label": "Tracked keywords", "hint": "Add keywords to start tracking" },
       "scans": { "label": "Completed scans", "hint": "No scans run yet" }
     },
-    "emptyState": "Start by adding your first brand and keywords."
+    "emptyState": "Start by adding your first brand and keywords.",
+    "nav": {
+      "overview": "Overview",
+      "brands": "Brands"
+    }
+  },
+  "Brands": {
+    "title": "Brands",
+    "subtitle": "Add the brands you want to track in AI answers.",
+    "addCta": "Add brand",
+    "empty": "No brands yet. Start by adding your first brand.",
+    "form": {
+      "title": "New brand",
+      "nameAr": "Name (Arabic)",
+      "nameArHint": "e.g. أرامكو",
+      "nameEn": "Name (English)",
+      "nameEnHint": "e.g. Aramco",
+      "aliasesAr": "Arabic aliases",
+      "aliasesArHint": "Comma or newline separated — include common spellings and abbreviations.",
+      "aliasesEn": "English aliases",
+      "aliasesEnHint": "Comma or newline separated.",
+      "website": "Website",
+      "competitors": "Competitors",
+      "competitorsHint": "Comma or newline separated — competitor names as free text.",
+      "industry": "Industry",
+      "submit": "Add brand",
+      "submitting": "Saving...",
+      "cancel": "Cancel"
+    },
+    "row": {
+      "aliases": "Aliases",
+      "competitors": "Competitors",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "confirmDelete": "Delete this brand? Its keywords will be removed too."
+    },
+    "errors": {
+      "unauthorized": "You must be signed in.",
+      "no_active_org": "Your session has no active organization.",
+      "user_not_provisioned": "Your account is still being provisioned. Try again in a moment.",
+      "validation_failed": "Check the values you entered.",
+      "not_found": "Brand not found.",
+      "invalid_id": "Invalid identifier.",
+      "internal_error": "Something went wrong. Try again."
+    }
   },
   "Common": {
     "appName": "GeoSight",
