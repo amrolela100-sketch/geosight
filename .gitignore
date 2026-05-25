@@ -63,3 +63,6 @@ venv/
 /tmp/
 /data/
 *.local
+
+# Claude Code per-machine settings — may contain DB URLs, tokens, etc.
+.claude/settings.local.json
