@@ -43,7 +43,8 @@
     "emptyState": "Start by adding your first brand and keywords.",
     "nav": {
       "overview": "Overview",
-      "brands": "Brands"
+      "brands": "Brands",
+      "keywords": "Keywords"
     }
   },
   "Brands": {
@@ -82,6 +83,64 @@
       "user_not_provisioned": "Your account is still being provisioned. Try again in a moment.",
       "validation_failed": "Check the values you entered.",
       "not_found": "Brand not found.",
+      "invalid_id": "Invalid identifier.",
+      "internal_error": "Something went wrong. Try again."
+    }
+  },
+  "Keywords": {
+    "title": "Keywords",
+    "subtitle": "Add the questions you want to measure your brand's visibility against on AI engines.",
+    "empty": "No keywords for this filter.",
+    "noBrandsYet": "Add a brand first before creating keywords.",
+    "goToBrands": "Go to brands",
+    "filter": {
+      "label": "Filter by brand",
+      "all": "All brands"
+    },
+    "form": {
+      "title": "New keyword",
+      "brand": "Brand",
+      "queryText": "Query text",
+      "queryTextPlaceholder": "e.g. What is the best web design agency in Riyadh?",
+      "queryTextHint": "Write the question naturally — the way you'd ask ChatGPT.",
+      "language": "Language",
+      "dialect": "Dialect",
+      "schedule": "Scan frequency",
+      "isActive": "Active",
+      "submit": "Add keyword",
+      "submitting": "Saving..."
+    },
+    "row": {
+      "active": "Active",
+      "paused": "Paused",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "lastScanned": "Last scanned",
+      "confirmDelete": "Delete this keyword? Its scan results will be removed too."
+    },
+    "languages": {
+      "ar": "Arabic",
+      "en": "English"
+    },
+    "dialects": {
+      "auto": "Auto",
+      "msa": "MSA",
+      "gulf": "Gulf",
+      "levantine": "Levantine",
+      "egyptian": "Egyptian"
+    },
+    "schedules": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "custom": "Custom"
+    },
+    "errors": {
+      "unauthorized": "You must be signed in.",
+      "no_active_org": "Your session has no active organization.",
+      "user_not_provisioned": "Your account is still being provisioned. Try again in a moment.",
+      "validation_failed": "Check the values you entered.",
+      "not_found": "Keyword not found.",
+      "brand_not_found": "The selected brand is not available.",
       "invalid_id": "Invalid identifier.",
       "internal_error": "Something went wrong. Try again."
     }
