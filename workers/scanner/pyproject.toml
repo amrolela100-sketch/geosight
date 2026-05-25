@@ -2,13 +2,18 @@
 name = "geosight-scanner"
 version = "0.0.0"
 description = "GeoSight Python workers — async scanners for ChatGPT/Gemini/Perplexity and the Arabic NLP parser."
-readme = ""
 requires-python = ">=3.11"
 license = { text = "UNLICENSED" }
 authors = [{ name = "GeoSight" }]
 
-# Dependencies will be locked when Phase 0 (scanner spike) lands.
-dependencies = []
+dependencies = [
+  "httpx>=0.27",
+  "typer>=0.12",
+  "rapidfuzz>=3.9",
+  "python-dotenv>=1.0",
+  "structlog>=24.4",
+  "rich>=13.7",
+]
 
 [project.optional-dependencies]
 dev = [
@@ -18,23 +23,47 @@ dev = [
   "pytest-asyncio>=0.24",
 ]
 
+[project.scripts]
+geosight-scan = "geosight_scanner.cli:app"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/geosight_scanner"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+src = ["src", "tests"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP", "N", "ASYNC", "S"]
-ignore = ["S101"]  # allow `assert` in tests
+select = ["E", "F", "I", "B", "UP", "N", "ASYNC", "S", "RUF"]
+ignore = [
+  "S101",    # allow `assert` in tests
+  "S311",    # PRNG is used only for deterministic fixture latency
+  "RUF001",  # Arabic source strings are expected in this project
+  "RUF002",  # Arabic docstrings are expected in this project
+  "RUF003",  # Arabic comments are expected in this project
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S"]
 
 [tool.mypy]
 python_version = "3.11"
 strict = true
 warn_unused_configs = true
+mypy_path = "src"
+namespace_packages = true
+explicit_package_bases = true
+
+[[tool.mypy.overrides]]
+module = ["rapidfuzz.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+pythonpath = ["src"]
