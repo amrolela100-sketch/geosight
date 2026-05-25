@@ -113,6 +113,6 @@ This roadmap is the canonical execution sequence. Phases are sized so each one p
 | Stage | Cost / month |
 |---|---|
 | Pre-launch (months 1–6) | ~$0 (every vendor has a free tier large enough) |
-| Post-launch @ 100 customers | ~$121 (Vercel + Neon + Upstash + Clerk + Railway + R2 + Resend + Sentry + domain) |
+| Post-launch @ 100 customers | ~$127 (Vercel + Supabase + Upstash + Clerk + Railway + R2 + Resend + Sentry + domain) |
 
 At $7K MRR with $121 infra, gross margin > 98% before BYOK pass-through.

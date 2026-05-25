@@ -1,0 +1,17 @@
+{
+  "extends": "../../packages/config/typescript/nextjs.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@geosight/db": ["../../packages/db/src/index.ts"],
+      "@geosight/db/*": ["../../packages/db/src/*"],
+      "@geosight/shared": ["../../packages/shared/src/index.ts"],
+      "@geosight/shared/*": ["../../packages/shared/src/*"],
+      "@geosight/ui": ["../../packages/ui/src/index.ts"],
+      "@geosight/ui/*": ["../../packages/ui/src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", ".next"]
+}

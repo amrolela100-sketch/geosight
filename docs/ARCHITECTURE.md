@@ -24,7 +24,7 @@ geosight/
 ```
 User → Next.js (web) → Fastify (api) ──┬─► BullMQ queue ──► Python worker
                                        │                       │
-                                       ├─► Postgres (Neon)     ├─► OpenAI / Gemini / Perplexity
+                                       ├─► Postgres (Supabase) ├─► OpenAI / Gemini / Perplexity
                                        │                       ▼
                                        └─► Redis (Upstash) ◄─── parsed results
                                                                │

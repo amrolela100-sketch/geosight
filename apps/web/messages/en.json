@@ -1,0 +1,15 @@
+{
+  "Landing": {
+    "hero": {
+      "eyebrow": "The first Arabic-native GEO platform",
+      "title": "See how your brand surfaces in ChatGPT, Gemini, and Perplexity",
+      "subtitle": "Track, measure, and improve your brand's visibility in generative AI engines — with accuracy tuned for every Arabic dialect.",
+      "ctaPrimary": "Join the waitlist",
+      "ctaSecondary": "Watch the demo"
+    }
+  },
+  "Common": {
+    "appName": "GeoSight",
+    "tagline": "Your brand visibility in the AI era"
+  }
+}

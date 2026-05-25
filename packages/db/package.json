@@ -2,7 +2,7 @@
   "name": "@geosight/db",
   "version": "0.0.0",
   "private": true,
-  "description": "GeoSight data layer — Drizzle ORM schema, migrations, and typed query helpers.",
+  "description": "GeoSight data layer — Drizzle ORM schema, migrations, typed query helpers, and Clerk-aware client.",
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
@@ -12,11 +12,29 @@
     "./client": "./src/client.ts"
   },
   "scripts": {
-    "dev": "echo \"@geosight/db: not yet scaffolded (Phase 1 / Week 5)\" && exit 0",
-    "build": "echo \"@geosight/db: not yet scaffolded\" && exit 0",
-    "lint": "echo \"@geosight/db: not yet scaffolded\" && exit 0",
-    "typecheck": "echo \"@geosight/db: not yet scaffolded\" && exit 0",
-    "test": "echo \"@geosight/db: not yet scaffolded\" && exit 0",
-    "clean": "rimraf dist .turbo node_modules"
+    "dev": "tsc --watch --preserveWatchOutput",
+    "build": "tsc",
+    "lint": "eslint src --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "test": "echo \"@geosight/db: tests pending\" && exit 0",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/migrate.ts",
+    "db:studio": "drizzle-kit studio",
+    "db:push": "drizzle-kit push",
+    "clean": "rimraf dist .turbo"
+  },
+  "dependencies": {
+    "@geosight/shared": "workspace:*",
+    "drizzle-orm": "^0.36.0",
+    "postgres": "^3.4.4"
+  },
+  "devDependencies": {
+    "@geosight/config": "workspace:*",
+    "@types/node": "^20.14.10",
+    "drizzle-kit": "^0.27.0",
+    "eslint": "^9.10.0",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
   }
 }
