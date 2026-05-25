@@ -1,0 +1,14 @@
+{
+  "name": "@geosight/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "GeoSight web app — Next.js 14 (App Router), RTL-first dashboard and marketing site.",
+  "scripts": {
+    "dev": "echo \"@geosight/web: not yet scaffolded (Phase 1 / Week 3)\" && exit 0",
+    "build": "echo \"@geosight/web: not yet scaffolded\" && exit 0",
+    "lint": "echo \"@geosight/web: not yet scaffolded\" && exit 0",
+    "typecheck": "echo \"@geosight/web: not yet scaffolded\" && exit 0",
+    "test": "echo \"@geosight/web: not yet scaffolded\" && exit 0",
+    "clean": "rimraf .next .turbo node_modules"
+  }
+}

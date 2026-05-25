@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/ASUS/.claude/projects/c--Users-ASUS-Desktop-geosight/memory//**)",
+      "Bash(pnpm --version)",
+      "Bash(git init *)",
+      "Bash(pnpm -r --filter '*' ls --depth -1)",
+      "Bash(git add *)",
+      "Bash(git -c 'user.name=GeoSight Dev' -c user.email=dev@geosight.local commit -m ' *)"
+    ]
+  }
+}

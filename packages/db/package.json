@@ -1,0 +1,22 @@
+{
+  "name": "@geosight/db",
+  "version": "0.0.0",
+  "private": true,
+  "description": "GeoSight data layer — Drizzle ORM schema, migrations, and typed query helpers.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./client": "./src/client.ts"
+  },
+  "scripts": {
+    "dev": "echo \"@geosight/db: not yet scaffolded (Phase 1 / Week 5)\" && exit 0",
+    "build": "echo \"@geosight/db: not yet scaffolded\" && exit 0",
+    "lint": "echo \"@geosight/db: not yet scaffolded\" && exit 0",
+    "typecheck": "echo \"@geosight/db: not yet scaffolded\" && exit 0",
+    "test": "echo \"@geosight/db: not yet scaffolded\" && exit 0",
+    "clean": "rimraf dist .turbo node_modules"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "@geosight/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "GeoSight backend — Fastify API + BullMQ producers + Clerk/Stripe webhooks.",
+  "scripts": {
+    "dev": "echo \"@geosight/api: not yet scaffolded (Phase 2 / Week 7)\" && exit 0",
+    "build": "echo \"@geosight/api: not yet scaffolded\" && exit 0",
+    "lint": "echo \"@geosight/api: not yet scaffolded\" && exit 0",
+    "typecheck": "echo \"@geosight/api: not yet scaffolded\" && exit 0",
+    "test": "echo \"@geosight/api: not yet scaffolded\" && exit 0",
+    "clean": "rimraf dist .turbo node_modules"
+  }
+}
