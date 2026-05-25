@@ -46,38 +46,58 @@ export function createDatabase(opts: ClientOptions): { db: Database; sql: SqlCli
 // ─────────────────────────────────────────────────────────────────────────────
 // Clerk-aware request scope.
 //
-// Every authenticated request opens a transaction, SETs the JWT claims as a
-// Postgres session variable, and runs the user's queries inside it. The RLS
-// policies read those claims via current_setting('request.jwt.claims').
+// Each authenticated request opens a transaction that SETs LOCAL ROLE to
+// `authenticated` (so `TO authenticated` policies match) and SETs
+// request.jwt.claims to a JSON-encoded claim set. The RLS helpers
+// (geosight_current_org_id / geosight_current_role) parse it via
+// current_setting('request.jwt.claims', true)::json.
 //
-// The shape mirrors the Supabase JWT template documented in
-// project-clerk-supabase-rls memory.
+// The claim shape mirrors the Supabase JWT template documented in
+// project-clerk-supabase-rls memory — but user_id / org_id carry the INTERNAL
+// UUIDs from users.id / organizations.id, NOT the raw Clerk IDs. The caller
+// (Fastify / Next middleware) resolves clerk_user_id → users.id once per
+// request so RLS predicates stay single-column UUID comparisons instead of
+// joining through clerk_org_id on every check.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export interface ClerkAuthContext {
-  /** The Clerk-issued JWT (signed against Supabase's JWT_SECRET). */
-  readonly token: string;
+export interface ClerkClaims {
+  /** Internal users.id (UUID), resolved from clerk_user_id by the caller. */
+  readonly user_id: string;
+  /** Internal organizations.id (UUID). Null when the session has no active
+   * org — RLS denies multi-tenant rows in that state. */
+  readonly org_id: string | null;
+  /** Normalised role: 'owner' | 'admin' | 'member' | 'viewer'. */
+  readonly org_role: string | null;
 }
 
-/** Wrap `fn` in a transaction that establishes Clerk JWT context for RLS.
- *
- * Throws if the token is empty — RLS policies will then deny every query.
- */
+export interface ClerkAuthContext {
+  readonly claims: ClerkClaims;
+}
+
+/** Run `fn` inside a transaction scoped to the Clerk-issued claims so RLS
+ * applies. Throws if claims.user_id is empty — silent denial would be worse. */
 export async function withClerkAuth<T>(
   db: Database,
   ctx: ClerkAuthContext,
   fn: (tx: DbTransaction) => Promise<T>,
 ): Promise<T> {
-  if (!ctx.token) {
+  if (!ctx.claims?.user_id) {
     throw new Error(
-      'withClerkAuth requires a non-empty token. Calling without one would bypass RLS.',
+      'withClerkAuth requires claims.user_id (internal users.id UUID resolved from clerk_user_id).',
     );
   }
 
+  const claimsJson = JSON.stringify({
+    aud: 'authenticated',
+    role: 'authenticated',
+    user_id: ctx.claims.user_id,
+    org_id: ctx.claims.org_id,
+    org_role: ctx.claims.org_role,
+  });
+
   return db.transaction(async (tx) => {
-    // The setting persists for the lifetime of this transaction only.
-    // `set_config(name, value, is_local)` with is_local=true scopes to TX.
-    await tx.execute(sql`SELECT set_config('request.jwt.claims', ${ctx.token}, true)`);
+    await tx.execute(sql`SET LOCAL ROLE authenticated`);
+    await tx.execute(sql`SELECT set_config('request.jwt.claims', ${claimsJson}, true)`);
     return fn(tx);
   });
 }
