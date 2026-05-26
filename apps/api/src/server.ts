@@ -5,9 +5,15 @@ import Fastify, { type FastifyInstance } from 'fastify';
 
 import { env } from './env.js';
 import { buildLoggerOptions } from './logger.js';
+import {
+  startDailyMetricsWorker,
+  type DailyMetricsWorkerHandle,
+} from './metrics/daily-worker.js';
+import { ensureDailyMetricsSchedule } from './metrics/scheduler.js';
 import { createQueueRegistry, type QueueRegistry } from './queues/registry.js';
 import { bullBoardRoute } from './routes/admin.js';
 import { healthRoutes } from './routes/health.js';
+import { metricsRoutes } from './routes/metrics.js';
 import { queueRoutes } from './routes/queues.js';
 import { scanRoutes } from './routes/scans.js';
 
@@ -15,6 +21,9 @@ export type BuildServerOptions = {
   /** Override logger config. Tests pass `false` to silence output. */
   logger?: ReturnType<typeof buildLoggerOptions>;
   queues?: QueueRegistry;
+  metrics?: Parameters<typeof metricsRoutes>[1];
+  startMetricsWorker?: boolean;
+  metricsWorker?: DailyMetricsWorkerHandle | null;
 };
 
 export async function buildServer(options: BuildServerOptions = {}): Promise<FastifyInstance> {
@@ -23,6 +32,13 @@ export async function buildServer(options: BuildServerOptions = {}): Promise<Fas
   });
 
   const queues = options.queues ?? createQueueRegistry();
+  const metricsWorker =
+    options.metricsWorker ??
+    (options.startMetricsWorker === false
+      ? null
+      : startDailyMetricsWorker({
+          logger: app.log,
+        }));
 
   await app.register(helmet, {
     // Bull Board ships its own assets; Helmet's default CSP refuses them.
@@ -40,13 +56,22 @@ export async function buildServer(options: BuildServerOptions = {}): Promise<Fas
   });
 
   app.addHook('onClose', async () => {
+    await metricsWorker?.close();
     await queues.close();
   });
 
   await app.register(healthRoutes, { queues });
   await app.register(queueRoutes, { queues, prefix: '/v1' });
   await app.register(scanRoutes, { queues, prefix: '/v1' });
+  await app.register(metricsRoutes, { ...options.metrics, prefix: '/v1' });
   await app.register(bullBoardRoute, { queues });
+
+  const schedule = await ensureDailyMetricsSchedule(queues);
+  if (schedule.scheduled) {
+    app.log.info(schedule, 'metrics-scheduler: daily aggregation scheduled');
+  } else {
+    app.log.info(schedule, 'metrics-scheduler: skipping schedule');
+  }
 
   return app;
 }

@@ -8,6 +8,7 @@ const apiEnvSchema = z.object({
   API_HOST: z.string().default('0.0.0.0'),
   API_PORT: z.coerce.number().int().positive().default(4000),
   WEB_APP_URL: z.string().url().default('http://localhost:3000'),
+  DATABASE_URL: z.preprocess(emptyToUndefined, z.string().url().optional()),
   REDIS_URL: optionalUrl,
   /** Shared secret that gates the Bull Board UI + admin routes. When unset,
    * the admin surface is disabled (404) — safer default than open access. */

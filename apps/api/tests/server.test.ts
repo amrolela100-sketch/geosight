@@ -6,7 +6,14 @@ import { buildServer } from '../src/server.js';
 function createDisabledQueues(): QueueRegistry {
   return {
     enabled: false,
-    names: ['scan:scheduled', 'scan:manual', 'report:generate', 'alert:send', 'dead-letter'],
+    names: [
+      'scan:scheduled',
+      'scan:manual',
+      'report:generate',
+      'alert:send',
+      'metrics:daily',
+      'dead-letter',
+    ],
     get: () => null,
     close: async () => undefined,
   };
@@ -76,7 +83,14 @@ describe('@geosight/api server', () => {
     // queue lookup will still fail safely since `get` returns null.
     const queues: QueueRegistry = {
       enabled: true,
-      names: ['scan:scheduled', 'scan:manual', 'report:generate', 'alert:send', 'dead-letter'],
+    names: [
+      'scan:scheduled',
+      'scan:manual',
+      'report:generate',
+      'alert:send',
+      'metrics:daily',
+      'dead-letter',
+    ],
       get: () => null,
       close: async () => undefined,
     };
@@ -90,6 +104,21 @@ describe('@geosight/api server', () => {
 
     expect(response.statusCode).toBe(400);
     expect(response.json()).toMatchObject({ error: 'InvalidPayload' });
+
+    await app.close();
+  });
+
+  it('keeps the metrics cron runner behind the admin token', async () => {
+    const app = await buildServer({ logger: false, queues: createDisabledQueues() });
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/admin/metrics/daily/run',
+      payload: {},
+    });
+
+    expect(response.statusCode).toBe(401);
+    expect(response.json()).toEqual({ error: 'Unauthorized' });
 
     await app.close();
   });

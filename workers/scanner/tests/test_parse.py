@@ -50,6 +50,13 @@ CAREEM = Brand(
     competitors=("أوبر", "Uber", "Bolt"),
 )
 
+SAMSUNG = Brand(
+    name_ar="سامسونج",
+    name_en="Samsung",
+    aliases=("سامسونغ", "samsung electronics"),
+    competitors=("آبل", "Apple", "هواوي", "Huawei"),
+)
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # detect_brand
@@ -70,9 +77,20 @@ class TestDetectBrand:
         assert detect_brand(text, SAUDIA) is not None
 
     def test_fuzzy_typo(self) -> None:
-        # User typo: كرم instead of كريم. Should still match via fuzzy.
+        # User typo: final qaf instead of jeem. Should still match via fuzzy.
+        text = normalize("هاتف سامسونق الجديد ممتاز")
+        assert detect_brand(text, SAMSUNG) is not None
+
+    def test_transliteration_candidate(self) -> None:
+        text = normalize("هاتف samsung مناسب للمستخدم العربي")
+        assert detect_brand(text, SAMSUNG) is not None
+
+    def test_arabic_alias_variant(self) -> None:
+        text = normalize("سامسونغ من اكثر الشركات انتشارا")
+        assert detect_brand(text, SAMSUNG) == 0
+
+    def test_definite_article_exact_substring(self) -> None:
         text = normalize("تطبيق الكريم للتوصيل")
-        # كريم is a substring of "الكريم" — exact match wins before fuzzy
         assert detect_brand(text, CAREEM) is not None
 
     def test_no_mention_returns_none(self) -> None:
@@ -105,12 +123,16 @@ class TestDetectCompetitors:
     def test_finds_english_competitors(self) -> None:
         text = normalize("Emirates competes with Saudia in the Middle East")
         comps = detect_competitors(text, SAUDIA)
-        # Normalization lowercases via case-insensitive lookup, but
-        # detect_competitors uses exact normalized form. English brands
-        # in the competitors list should appear when present.
-        # Without explicit case-folding in detect_competitors, this checks
-        # that the normalize() of competitor strings matches.
         assert "Emirates" in comps or "emirates" in (c.lower() for c in comps)
+
+    def test_returns_competitors_in_encounter_order(self) -> None:
+        text = normalize("القطرية ثم طيران الإمارات ثم الخطوط السعودية")
+        comps = detect_competitors(text, SAUDIA)
+        assert comps[:2] == ("القطرية", "طيران الإمارات")
+
+    def test_avoids_fuzzy_false_positive_for_competitors(self) -> None:
+        text = normalize("لا منافسين في هذا النص")
+        assert "Emirates" not in detect_competitors(text, SAUDIA)
 
     def test_no_duplicates(self) -> None:
         text = normalize("طيران الإمارات هو الأفضل. طيران الإمارات يطير لكل العالم.")

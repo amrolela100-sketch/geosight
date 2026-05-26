@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import pytest
+from hypothesis import given
+from hypothesis import strategies as st
 
 from geosight_scanner.normalize import (
+    ArabicNormalizer,
     normalize,
     normalize_digits,
     normalize_hamza,
@@ -14,6 +17,7 @@ from geosight_scanner.normalize import (
     normalize_yaa,
     remove_diacritics,
     remove_tatweel,
+    strip_join_controls,
 )
 
 
@@ -96,6 +100,14 @@ class TestNormalizeWhitespace:
         assert normalize_whitespace("   leading and trailing   ") == "leading and trailing"
 
 
+class TestStripJoinControls:
+    def test_strips_zero_width_joiners(self) -> None:
+        assert strip_join_controls("سام\u200dسونج") == "سامسونج"
+
+    def test_strips_bidi_marks(self) -> None:
+        assert strip_join_controls("\ufeffمرحبا\u200f") == "مرحبا"
+
+
 class TestFullPipeline:
     """End-to-end checks on realistic LLM-emitted Arabic text."""
 
@@ -123,3 +135,13 @@ class TestFullPipeline:
         once = normalize(sample)
         twice = normalize(once)
         assert once == twice
+
+    def test_class_matches_compatibility_wrapper(self) -> None:
+        normalizer = ArabicNormalizer()
+        sample = "سـامسونج، سنة ٢٠٢٦؟"
+        assert normalizer.normalize(sample) == normalize(sample)
+
+    @given(st.text())
+    def test_property_idempotent(self, sample: str) -> None:
+        once = normalize(sample)
+        assert normalize(once) == once

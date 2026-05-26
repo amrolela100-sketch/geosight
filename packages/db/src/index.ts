@@ -1,4 +1,5 @@
 export * from './client.js';
+export * from './metrics/index.js';
 export * as schema from './schema/index.js';
 
 // Re-export the most common drizzle-orm helpers so consumers don't need a

@@ -98,7 +98,7 @@ def test_build_key_resolver_vault_mode_not_yet_implemented() -> None:
 
 def test_build_key_resolver_rejects_unknown_mode() -> None:
     with pytest.raises(ValueError):
-        build_key_resolver("nope")  # type: ignore[arg-type]
+        build_key_resolver("nope")
 
 
 # Mark the otherwise-unreferenced VaultKeyResolver import so ruff is happy

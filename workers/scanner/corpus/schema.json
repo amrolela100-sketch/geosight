@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GeoSight Arabic NLP corpus entry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "dialect", "text", "target_brand", "expected", "difficulty", "notes"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^(msa|gulf|levantine|egyptian)-[0-9]{3}$"
+    },
+    "dialect": {
+      "type": "string",
+      "enum": ["msa", "gulf", "levantine", "egyptian"]
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "target_brand": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expected": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mentioned", "position", "rank", "sentiment", "competitors", "citations"],
+      "properties": {
+        "mentioned": { "type": "boolean" },
+        "position": { "type": ["integer", "null"], "minimum": 0 },
+        "rank": { "type": ["integer", "null"], "minimum": 1 },
+        "sentiment": { "type": "string", "enum": ["positive", "neutral", "negative"] },
+        "competitors": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "citations": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": ["easy", "medium", "hard"]
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

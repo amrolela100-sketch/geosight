@@ -205,7 +205,7 @@ def test_parse_payload_rejects_bad_datetime() -> None:
 
 def test_parse_payload_rejects_non_dict() -> None:
     with pytest.raises(UnrecoverableHandlerError):
-        parse_payload("not-a-dict")  # type: ignore[arg-type]
+        parse_payload("not-a-dict")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

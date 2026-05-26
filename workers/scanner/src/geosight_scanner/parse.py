@@ -12,8 +12,21 @@ from typing import Final, Literal
 
 from rapidfuzz import fuzz
 
+from geosight_scanner.dialects import detect_dialect
 from geosight_scanner.normalize import normalize, normalize_case_insensitive
-from geosight_scanner.types import Brand, Dialect, ParsedResult, ProviderResponse
+from geosight_scanner.types import Brand, ParsedResult, ProviderResponse
+
+__all__ = [
+    "analyze_sentiment",
+    "compute_geo_score",
+    "detect_brand",
+    "detect_competitors",
+    "detect_dialect",
+    "extract_citations",
+    "extract_context",
+    "mention_rank",
+    "parse",
+]
 
 # ── GEO Score weights ────────────────────────────────────────────────────────
 # Mirrors the formula in docs/ROADMAP.md § Phase 2 / Week 12. Configurable in
@@ -52,17 +65,8 @@ _NEGATIVE_TERMS: Final[tuple[str, ...]] = (
     "مشاكل",
 )
 
-# ── Dialect markers (Phase 0 — single strongest signal per dialect) ─────────
-_DIALECT_MARKERS: Final[dict[Dialect, tuple[str, ...]]] = {
-    "gulf": ("وش", "ايش", "زين", "هواي", "وايد"),
-    "levantine": ("شو", "هلق", "كتير", "منيح", "بدي"),
-    "egyptian": ("ايه", "عايز", "ازاي", "خالص", "اوي"),
-    "msa": ("هل", "ما هي", "اقترح", "اوصي", "ايهما"),
-}
-
-# Fuzzy threshold — empirically picked, will be tuned against the labeled
-# dataset in Phase 2. 85 = "looks like the same word with a typo or two".
-_FUZZY_THRESHOLD: Final = 85
+_FUZZY_WORD_THRESHOLD: Final = 86
+_FUZZY_PHRASE_THRESHOLD: Final = 90
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -75,61 +79,193 @@ def _candidates_for(brand: Brand) -> tuple[str, ...]:
     return (brand.name_ar, brand.name_en, *brand.aliases)
 
 
+def _dedupe(values: tuple[str, ...] | list[str]) -> tuple[str, ...]:
+    seen: set[str] = set()
+    deduped: list[str] = []
+    for value in values:
+        cleaned = value.strip()
+        key = normalize_case_insensitive(cleaned)
+        if cleaned and key not in seen:
+            deduped.append(cleaned)
+            seen.add(key)
+    return tuple(deduped)
+
+
+def _latin_to_arabic_variants(value: str) -> tuple[str, ...]:
+    """Small rule-based transliteration aid for common brand candidates.
+
+    This is deliberately conservative: it augments brand aliases; it is not a
+    general transliteration engine.
+    """
+    raw = value.strip().casefold()
+    if not raw or not re.fullmatch(r"[a-z0-9 &.+-]+", raw):
+        return ()
+
+    compact = re.sub(r"[^a-z0-9]+", "", raw)
+    known: dict[str, tuple[str, ...]] = {
+        "saudia": ("السعوديه", "سعوديه"),
+        "saudiaairlines": ("الخطوط السعوديه", "السعوديه"),
+        "careem": ("كريم", "كرييم"),
+        "samsung": ("سامسونج", "سامسونغ", "سامسونق"),
+        "emirates": ("طيران الامارات", "الامارات"),
+        "qatarairways": ("القطريه", "الخطوط القطريه"),
+        "uber": ("اوبر",),
+    }
+    if compact in known:
+        return known[compact]
+
+    table = (
+        ("sh", "ش"),
+        ("kh", "خ"),
+        ("gh", "غ"),
+        ("th", "ث"),
+        ("dh", "ذ"),
+        ("aa", "ا"),
+        ("ee", "ي"),
+        ("oo", "و"),
+        ("a", "ا"),
+        ("b", "ب"),
+        ("c", "ك"),
+        ("d", "د"),
+        ("e", "ي"),
+        ("f", "ف"),
+        ("g", "ج"),
+        ("h", "ه"),
+        ("i", "ي"),
+        ("j", "ج"),
+        ("k", "ك"),
+        ("l", "ل"),
+        ("m", "م"),
+        ("n", "ن"),
+        ("o", "و"),
+        ("p", "ب"),
+        ("q", "ق"),
+        ("r", "ر"),
+        ("s", "س"),
+        ("t", "ت"),
+        ("u", "و"),
+        ("v", "ف"),
+        ("w", "و"),
+        ("x", "كس"),
+        ("y", "ي"),
+        ("z", "ز"),
+    )
+    out = compact
+    for latin, arabic in table:
+        out = out.replace(latin, arabic)
+    return (out,) if out and out != compact else ()
+
+
+def _normalized_candidates_for(brand: Brand) -> tuple[str, ...]:
+    base = _dedupe(tuple(c for c in _candidates_for(brand) if c))
+    variants: list[str] = []
+    for candidate in base:
+        variants.append(candidate)
+        variants.extend(_latin_to_arabic_variants(candidate))
+    return _dedupe([normalize(candidate) for candidate in variants])
+
+
+def _normalized_literal_candidates_for(brand: Brand) -> tuple[str, ...]:
+    return _dedupe([normalize(candidate) for candidate in _candidates_for(brand) if candidate])
+
+
+def _find_exact(normalized_text: str, candidates: tuple[str, ...]) -> int | None:
+    earliest: int | None = None
+    for needle in candidates:
+        idx = normalized_text.find(needle)
+        if idx >= 0 and (earliest is None or idx < earliest):
+            earliest = idx
+    return earliest
+
+
+def _find_exact_casefold(normalized_text: str, candidates: tuple[str, ...]) -> int | None:
+    text_ci = normalized_text.casefold()
+    earliest: int | None = None
+    for needle in candidates:
+        idx = text_ci.find(normalize_case_insensitive(needle))
+        if idx >= 0 and (earliest is None or idx < earliest):
+            earliest = idx
+    return earliest
+
+
+def _find_fuzzy(normalized_text: str, candidates: tuple[str, ...]) -> int | None:
+    tokens = normalized_text.split()
+    if not tokens:
+        return None
+
+    spans: list[tuple[str, int]] = []
+    cursor = 0
+    for token in tokens:
+        token_start = normalized_text.find(token, cursor)
+        if token_start < 0:
+            continue
+        spans.append((token, token_start))
+        cursor = token_start + len(token)
+
+    earliest: int | None = None
+    for candidate in candidates:
+        candidate_tokens = candidate.split()
+        if len(candidate) < 3:
+            continue
+        window_size = max(1, len(candidate_tokens))
+        for idx in range(0, len(spans)):
+            window = " ".join(token for token, _ in spans[idx : idx + window_size])
+            if not window:
+                continue
+            threshold = _FUZZY_PHRASE_THRESHOLD if window_size > 1 else _FUZZY_WORD_THRESHOLD
+            score = fuzz.ratio(window, candidate)
+            if score < threshold and window_size == 1:
+                score = fuzz.partial_ratio(window, candidate)
+            if score >= threshold:
+                token_start = spans[idx][1]
+                if earliest is None or token_start < earliest:
+                    earliest = token_start
+    return earliest
+
+
 def detect_brand(normalized_text: str, brand: Brand) -> int | None:
     """Find the earliest character offset where any brand candidate appears.
 
     Strategies, in order:
       1. exact substring (normalized form, case-sensitive Arabic)
       2. exact substring (case-insensitive — catches English-in-Arabic mixes)
-      3. fuzzy token match (catches typos and transliteration variants)
+      3. transliteration-assisted candidates from English aliases
+      4. fuzzy token/phrase match (catches typos)
 
     Returns the 0-indexed char offset of the first hit, or None if no hit.
     """
     if not normalized_text:
         return None
 
-    candidates = [normalize(c) for c in _candidates_for(brand) if c]
-    candidates_ci = [normalize_case_insensitive(c) for c in candidates]
-    text_ci = normalized_text.lower()
+    candidates = _normalized_candidates_for(brand)
 
-    # Strategy 1 + 2 — exact substring, both case-sensitive and case-insensitive.
-    earliest: int | None = None
-    for needle in candidates:
-        idx = normalized_text.find(needle)
-        if idx >= 0 and (earliest is None or idx < earliest):
-            earliest = idx
-    for needle in candidates_ci:
-        idx = text_ci.find(needle)
-        if idx >= 0 and (earliest is None or idx < earliest):
-            earliest = idx
-    if earliest is not None:
-        return earliest
-
-    # Strategy 3 — fuzzy over each token. partial_ratio handles "كريم" inside
-    # "تطبيق كريم للتوصيل" cleanly.
-    tokens = normalized_text.split()
-    cursor = 0
-    for token in tokens:
-        token_start = normalized_text.find(token, cursor)
-        cursor = token_start + len(token) if token_start >= 0 else cursor
-        for needle in candidates:
-            if len(needle) < 3:
-                continue
-            if fuzz.partial_ratio(token, needle) >= _FUZZY_THRESHOLD:
-                return token_start if token_start >= 0 else 0
-
+    for strategy in (_find_exact, _find_exact_casefold, _find_fuzzy):
+        hit = strategy(normalized_text, candidates)
+        if hit is not None:
+            return hit
     return None
 
 
 def detect_competitors(normalized_text: str, brand: Brand) -> tuple[str, ...]:
     """Return competitors mentioned, in encounter order, deduplicated."""
+    hits: list[tuple[int, str]] = []
+    for competitor in brand.competitors:
+        candidates = _normalized_literal_candidates_for(
+            Brand(name_ar=competitor, name_en=competitor)
+        )
+        idx = _find_exact(normalized_text, candidates)
+        if idx is None:
+            idx = _find_exact_casefold(normalized_text, candidates)
+        if idx is not None:
+            hits.append((idx, competitor))
+
     found: list[str] = []
     seen: set[str] = set()
-    for competitor in brand.competitors:
-        competitor_n = normalize(competitor)
-        if competitor_n and competitor_n in normalized_text and competitor not in seen:
+    for _, competitor in sorted(hits, key=lambda hit: hit[0]):
+        key = normalize_case_insensitive(competitor)
+        if key not in seen:
             found.append(competitor)
-            seen.add(competitor)
+            seen.add(key)
     return tuple(found)
 
 
@@ -149,11 +285,11 @@ def mention_rank(
 
     competitor_positions: list[int] = []
     for c in competitors:
-        c_norm = normalize(c)
-        if not c_norm:
-            continue
-        idx = normalized_text.find(c_norm)
-        if idx >= 0:
+        candidates = _normalized_literal_candidates_for(Brand(name_ar=c, name_en=c))
+        idx = _find_exact(normalized_text, candidates)
+        if idx is None:
+            idx = _find_exact_casefold(normalized_text, candidates)
+        if idx is not None:
             competitor_positions.append(idx)
 
     ahead = sum(1 for pos in competitor_positions if pos < target_pos)
@@ -199,21 +335,6 @@ def analyze_sentiment(
     if neg_hits > pos_hits:
         return "negative"
     return "neutral"
-
-
-def detect_dialect(normalized_text: str) -> Dialect | None:
-    """Pick the dialect whose markers fire the most. Ties → MSA."""
-    scores: dict[Dialect, int] = {dialect: 0 for dialect in _DIALECT_MARKERS}
-    for dialect, markers in _DIALECT_MARKERS.items():
-        for marker in markers:
-            if marker in normalized_text:
-                scores[dialect] += 1
-
-    if not any(scores.values()):
-        return None
-
-    top = max(scores.items(), key=lambda kv: kv[1])
-    return top[0]
 
 
 def extract_context(normalized_text: str, target: Brand, window: int = 120) -> str | None:

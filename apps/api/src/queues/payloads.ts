@@ -23,6 +23,20 @@ export const alertJobSchema = z.object({
   channel: z.enum(['email', 'slack']),
 });
 
+export const dailyMetricsJobSchema = z.object({
+  day: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+  retentionDays: z.number().int().positive().max(365).default(90),
+  applyRetention: z.boolean().default(true),
+  requestedAt: z
+    .string()
+    .datetime()
+    .default(() => new Date().toISOString()),
+});
+
 export type ScanJobPayload = z.infer<typeof scanJobSchema>;
 export type ReportJobPayload = z.infer<typeof reportJobSchema>;
 export type AlertJobPayload = z.infer<typeof alertJobSchema>;
+export type DailyMetricsJobPayload = z.infer<typeof dailyMetricsJobSchema>;

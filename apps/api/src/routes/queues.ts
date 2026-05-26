@@ -4,9 +4,11 @@ import { z } from 'zod';
 import { queueNames, type QueueName } from '../queues/names.js';
 import {
   alertJobSchema,
+  dailyMetricsJobSchema,
   reportJobSchema,
   scanJobSchema,
   type AlertJobPayload,
+  type DailyMetricsJobPayload,
   type ReportJobPayload,
   type ScanJobPayload,
 } from '../queues/payloads.js';
@@ -20,6 +22,7 @@ type JobPayload =
   | ScanJobPayload
   | ReportJobPayload
   | AlertJobPayload
+  | DailyMetricsJobPayload
   | {
       failedQueue: QueueName;
       failedJobId?: string;
@@ -35,6 +38,7 @@ function schemaForQueue(name: QueueName) {
   if (name === 'scan:scheduled' || name === 'scan:manual') return scanJobSchema;
   if (name === 'report:generate') return reportJobSchema;
   if (name === 'alert:send') return alertJobSchema;
+  if (name === 'metrics:daily') return dailyMetricsJobSchema;
   return z.object({
     failedQueue: z.enum(queueNames),
     failedJobId: z.string().min(1).optional(),
