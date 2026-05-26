@@ -2,13 +2,33 @@
   "name": "@geosight/api",
   "version": "0.0.0",
   "private": true,
-  "description": "GeoSight backend — Fastify API + BullMQ producers + Clerk/Stripe webhooks.",
+  "description": "GeoSight backend - Fastify API + BullMQ producers + Clerk/Stripe webhooks.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "dev": "echo \"@geosight/api: not yet scaffolded (Phase 2 / Week 7)\" && exit 0",
-    "build": "echo \"@geosight/api: not yet scaffolded\" && exit 0",
-    "lint": "echo \"@geosight/api: not yet scaffolded\" && exit 0",
-    "typecheck": "echo \"@geosight/api: not yet scaffolded\" && exit 0",
-    "test": "echo \"@geosight/api: not yet scaffolded\" && exit 0",
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint src tests --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "clean": "rimraf dist .turbo node_modules"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/helmet": "^13.0.2",
+    "bullmq": "^5.77.3",
+    "fastify": "^5.8.5",
+    "ioredis": "^5.10.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@geosight/config": "workspace:*",
+    "@types/node": "^20.14.10",
+    "eslint": "^9.39.4",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4",
+    "vitest": "^2.1.8"
   }
 }
