@@ -1,6 +1,12 @@
 import { z } from 'zod';
 
-import { keywordDialectSchema, languageSchema, niceString, scheduleSchema, uuidSchema } from './primitives.js';
+import {
+  keywordDialectSchema,
+  languageSchema,
+  niceString,
+  scheduleSchema,
+  uuidSchema,
+} from './primitives.js';
 
 export const createKeywordSchema = z.object({
   brandId: uuidSchema,

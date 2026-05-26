@@ -6,7 +6,13 @@ build/
 out/
 coverage/
 .venv/
+venv/
 __pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 pnpm-lock.yaml
 *.min.js
 *.min.css
+.claude/
+tmp/

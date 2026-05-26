@@ -23,6 +23,9 @@ export function WaitlistForm() {
       fullName: String(formData.get('fullName') ?? ''),
       email: String(formData.get('email') ?? ''),
       company: String(formData.get('company') ?? '') || undefined,
+      utmSource: new URLSearchParams(window.location.search).get('utm_source') ?? undefined,
+      utmMedium: new URLSearchParams(window.location.search).get('utm_medium') ?? undefined,
+      utmCampaign: new URLSearchParams(window.location.search).get('utm_campaign') ?? undefined,
     };
 
     try {
@@ -47,9 +50,12 @@ export function WaitlistForm() {
 
   if (status === 'success') {
     return (
-      <div className="flex w-full max-w-md flex-col items-center gap-2 rounded-xl border border-primary/40 bg-primary/10 p-6 text-center">
-        <p className="text-base font-semibold">{t('successTitle')}</p>
-        <p className="text-sm text-muted-foreground">{t('successBody')}</p>
+      <div className="glass gemini-border shadow-soft flex w-full max-w-xl flex-col items-center gap-3 rounded-[28px] p-7 text-center">
+        <div className="bg-primary/20 text-primary flex h-12 w-12 items-center justify-center rounded-full text-lg">
+          +
+        </div>
+        <p className="text-lg font-semibold">{t('successTitle')}</p>
+        <p className="text-muted-foreground max-w-md text-sm leading-6">{t('successBody')}</p>
       </div>
     );
   }
@@ -57,44 +63,51 @@ export function WaitlistForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex w-full max-w-md flex-col gap-3 rounded-xl border border-border bg-card/40 p-6 text-start"
+      className="glass gemini-border shadow-soft flex w-full max-w-xl flex-col gap-5 rounded-[32px] p-6 text-start md:p-7"
       noValidate
     >
-      <label className="flex flex-col gap-1.5 text-sm">
-        <span className="font-medium">{t('fullName')}</span>
-        <input
-          name="fullName"
-          required
-          minLength={2}
-          maxLength={120}
-          autoComplete="name"
-          className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-        />
-      </label>
+      <div className="flex flex-col gap-1">
+        <p className="text-foreground text-sm font-medium">{t('title')}</p>
+        <p className="text-muted-foreground text-sm leading-6">{t('subtitle')}</p>
+      </div>
 
-      <label className="flex flex-col gap-1.5 text-sm">
-        <span className="font-medium">{t('email')}</span>
-        <input
-          name="email"
-          type="email"
-          required
-          autoComplete="email"
-          className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-        />
-      </label>
+      <div className="grid gap-4 md:grid-cols-2">
+        <label className="flex flex-col gap-2 text-sm">
+          <span className="font-medium">{t('fullName')}</span>
+          <input
+            name="fullName"
+            required
+            minLength={2}
+            maxLength={120}
+            autoComplete="name"
+            className="bg-background/60 focus:border-primary focus:ring-primary rounded-2xl border border-white/10 px-4 py-3 text-sm outline-none transition focus:ring-1"
+          />
+        </label>
 
-      <label className="flex flex-col gap-1.5 text-sm">
+        <label className="flex flex-col gap-2 text-sm">
+          <span className="font-medium">{t('email')}</span>
+          <input
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            className="bg-background/60 focus:border-primary focus:ring-primary rounded-2xl border border-white/10 px-4 py-3 text-sm outline-none transition focus:ring-1"
+          />
+        </label>
+      </div>
+
+      <label className="flex flex-col gap-2 text-sm">
         <span className="font-medium">{t('company')}</span>
         <input
           name="company"
           maxLength={160}
           autoComplete="organization"
-          className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          className="bg-background/60 focus:border-primary focus:ring-primary rounded-2xl border border-white/10 px-4 py-3 text-sm outline-none transition focus:ring-1"
         />
       </label>
 
       {errorMsg && (
-        <p className="text-xs text-destructive" role="alert">
+        <p className="text-destructive text-xs" role="alert">
           {errorMsg}
         </p>
       )}
@@ -103,8 +116,8 @@ export function WaitlistForm() {
         type="submit"
         disabled={status === 'submitting'}
         className={cn(
-          'mt-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-glow transition',
-          status === 'submitting' ? 'opacity-60' : 'hover:opacity-90',
+          'shadow-glow bg-primary text-primary-foreground mt-1 rounded-full px-6 py-3 text-sm font-medium transition',
+          status === 'submitting' ? 'opacity-60' : 'hover:-translate-y-0.5 hover:opacity-95',
         )}
       >
         {status === 'submitting' ? t('submitting') : t('submit')}

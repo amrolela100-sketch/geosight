@@ -4,6 +4,15 @@ Solo build · 32-week plan · Arabic-first GEO analytics SaaS.
 
 This roadmap is the canonical execution sequence. Phases are sized so each one produces a verifiable, demonstrable artifact — never theoretical work.
 
+## Design Operating System
+
+`C:\Users\ASUS\Desktop\التصميم.md` is the active design source of truth for the product experience.
+
+- Apply the design inside the existing Next.js app (`apps/web`), not as a separate HTML/CSS/JS prototype.
+- The visual language is Gemini-inspired but GeoSight-owned: ambient glow, glass surfaces, blue/violet/rose accents, Arabic-first RTL, and calm purposeful motion.
+- The landing page is the first implementation of the system; dashboard, onboarding, settings, reports, and public pages must reuse the same tokens and interaction language.
+- Design work is now part of delivery gates: a phase is not complete until its UI states, responsive behavior, Arabic copy, loading/error states, and accessibility basics are present.
+
 ---
 
 ## Phase 0 — Proof of Concept (weeks 1–2)
@@ -16,6 +25,7 @@ This roadmap is the canonical execution sequence. Phases are sized so each one p
 - CSV/JSON output for manual review.
 
 **Exit criteria:**
+
 - Successful structured extraction on ≥ 80% of probes across all 3 providers.
 - Brand detection accuracy ≥ 75% on the dialect sample set.
 - If criteria miss, **stop** and revisit the thesis before Phase 1.
@@ -29,9 +39,9 @@ This roadmap is the canonical execution sequence. Phases are sized so each one p
 - Week 3: monorepo + Next.js 14 (`apps/web`) + Tailwind/RTL + next-intl + next-themes + CI.
 - Week 4: Clerk auth + Organizations + RBAC (owner/admin/member/viewer) + Clerk webhooks.
 - Week 5: `packages/db` (Drizzle schema + migrations + RLS) + Sentry/PostHog wiring.
-- Week 6: marketing landing page + waitlist (Resend) + SEO + deploy to Vercel.
+- Week 6: Gemini-inspired GeoSight landing page using the new design system + interactive GEO demo + waitlist (Resend) + SEO + deploy to Vercel.
 
-**Exit criteria:** signed-up users land on a real dashboard shell, marketing site live, waitlist collecting leads.
+**Exit criteria:** signed-up users land on a real dashboard shell, marketing site live, waitlist collecting leads, and the new design system is implemented in `apps/web` as reusable tokens/utilities.
 
 ---
 
@@ -65,12 +75,12 @@ This roadmap is the canonical execution sequence. Phases are sized so each one p
 
 ## Phase 4 — Dashboard UX (weeks 16–22)
 
-**Goal:** Linear/Vercel/Stripe-grade UI. Seven weeks because UX polish is a stated priority (#3, ahead of scalability).
+**Goal:** apply the new GeoSight design system across the product dashboard with a polished, Arabic-first operational UX. Seven weeks remain dedicated to UI because visual quality is a product priority, not a cosmetic pass.
 
-- Weeks 16–17: design tokens, dark-first theme, `@geosight/ui` (shadcn primitives + GeoSight tokens), layout shell, micro-animations.
+- Weeks 16–17: harden the new design system into `@geosight/ui`: Gemini-inspired tokens, glass surfaces, RTL-safe form controls, icons, density rules, layout shell, responsive states, and purposeful micro-animations.
 - Weeks 18–19: Overview / Keywords / Scan Detail / Competitors pages with interactive charts (Recharts).
 - Weeks 20–21: PDF reports (`@react-pdf/renderer`, white-label) + scheduled email delivery + notification center + Slack hook.
-- Week 22: Server Components + Suspense streaming + React Query client cache + error boundaries + Playwright E2E covering the full signup → scan → report path.
+- Week 22: Server Components + Suspense streaming + React Query client cache + error boundaries + Playwright E2E + visual regression checks covering the full signup → scan → report path.
 
 ---
 
@@ -97,22 +107,22 @@ This roadmap is the canonical execution sequence. Phases are sized so each one p
 
 ## Risk Register
 
-| Risk | Likelihood | Impact | Mitigation |
-|---|---|---|---|
-| Provider API breaking changes | High | High | Adapter abstraction layer + quick patch pipeline |
-| Arabic NLP accuracy below target | Medium | Critical | 1000-item labeled set + Phase 0 gate + 6 weeks in Phase 2 |
-| Rate-limit / cost spikes | High | Medium | Response cache + exponential backoff + smart scheduling |
-| BYOK key leak | Low | Critical | AES-256-GCM + master key in env only + audit log |
-| Slow user acquisition | Medium | High | Free GEO Audit tool + content + 20% affiliates |
-| Solo-developer burnout | High | High | Hard cap at 25–30 hrs/week + buffer weeks built into every phase |
+| Risk                             | Likelihood | Impact   | Mitigation                                                       |
+| -------------------------------- | ---------- | -------- | ---------------------------------------------------------------- |
+| Provider API breaking changes    | High       | High     | Adapter abstraction layer + quick patch pipeline                 |
+| Arabic NLP accuracy below target | Medium     | Critical | 1000-item labeled set + Phase 0 gate + 6 weeks in Phase 2        |
+| Rate-limit / cost spikes         | High       | Medium   | Response cache + exponential backoff + smart scheduling          |
+| BYOK key leak                    | Low        | Critical | AES-256-GCM + master key in env only + audit log                 |
+| Slow user acquisition            | Medium     | High     | Free GEO Audit tool + content + 20% affiliates                   |
+| Solo-developer burnout           | High       | High     | Hard cap at 25–30 hrs/week + buffer weeks built into every phase |
 
 ---
 
 ## Cost Trajectory
 
-| Stage | Cost / month |
-|---|---|
-| Pre-launch (months 1–6) | ~$0 (every vendor has a free tier large enough) |
+| Stage                       | Cost / month                                                                          |
+| --------------------------- | ------------------------------------------------------------------------------------- |
+| Pre-launch (months 1–6)     | ~$0 (every vendor has a free tier large enough)                                       |
 | Post-launch @ 100 customers | ~$127 (Vercel + Supabase + Upstash + Clerk + Railway + R2 + Resend + Sentry + domain) |
 
 At $7K MRR with $121 infra, gross margin > 98% before BYOK pass-through.

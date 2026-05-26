@@ -2,20 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 
-import {
-  and,
-  asc,
-  brands,
-  desc,
-  eq,
-  keywords,
-  type Keyword,
-} from '@geosight/db';
-import {
-  createKeywordSchema,
-  updateKeywordSchema,
-  uuidSchema,
-} from '@geosight/shared';
+import { and, asc, brands, desc, eq, keywords, type Keyword } from '@geosight/db';
+import { createKeywordSchema, updateKeywordSchema, uuidSchema } from '@geosight/shared';
 
 import {
   NoActiveOrgError,
@@ -50,8 +38,7 @@ function revalidateKeywordPaths(): void {
 function authErrorToState(err: unknown): ActionState | null {
   if (err instanceof UnauthorizedError) return { ok: false, error: 'unauthorized' };
   if (err instanceof NoActiveOrgError) return { ok: false, error: 'no_active_org' };
-  if (err instanceof UserNotProvisionedError)
-    return { ok: false, error: 'user_not_provisioned' };
+  if (err instanceof UserNotProvisionedError) return { ok: false, error: 'user_not_provisioned' };
   return null;
 }
 
@@ -95,9 +82,7 @@ export async function listKeywords(brandId?: string): Promise<KeywordListItem[]>
         .from(keywords)
         .innerJoin(brands, eq(brands.id, keywords.brandId));
 
-      const query = filter?.success
-        ? base.where(eq(keywords.brandId, filter.data))
-        : base;
+      const query = filter?.success ? base.where(eq(keywords.brandId, filter.data)) : base;
 
       return query.orderBy(desc(keywords.createdAt));
     });

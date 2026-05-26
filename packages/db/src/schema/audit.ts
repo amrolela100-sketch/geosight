@@ -1,12 +1,5 @@
 import { relations, sql } from 'drizzle-orm';
-import {
-  index,
-  jsonb,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-} from 'drizzle-orm/pg-core';
+import { index, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 import { auditActionEnum } from './enums.js';
 import { organizations } from './organizations.js';
@@ -26,7 +19,10 @@ export const auditLogs = pgTable(
     /** Free-form entity reference (e.g. 'brand:<uuid>', 'vault_key:<uuid>'). */
     entityRef: text('entity_ref'),
     /** Structured context. NEVER stores plaintext secrets. */
-    metadata: jsonb('metadata').$type<Record<string, unknown>>().notNull().default(sql`'{}'::jsonb`),
+    metadata: jsonb('metadata')
+      .$type<Record<string, unknown>>()
+      .notNull()
+      .default(sql`'{}'::jsonb`),
     ipAddress: text('ip_address'),
     userAgent: text('user_agent'),
     createdAt: timestamp('created_at', { withTimezone: true })

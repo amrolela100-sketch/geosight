@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="628" viewBox="0 0 1200 628">
+  <foreignObject width="1200" height="628">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="frame" style="width:1200px;height:628px">
+      <style>
+    @font-face { font-family: InterFallback; src: local("Inter"), local("Segoe UI"); }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    .frame {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 22% 12%, rgba(66,133,244,.38), transparent 31%),
+        radial-gradient(circle at 86% 16%, rgba(161,108,227,.34), transparent 34%),
+        radial-gradient(circle at 60% 94%, rgba(227,109,125,.28), transparent 32%),
+        #080b1a;
+      color: #f8fafc;
+      font-family: InterFallback, "Segoe UI", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+    .grid {
+      position: absolute;
+      inset: 0;
+      opacity: .24;
+      background-image:
+        linear-gradient(rgba(255,255,255,.09) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.09) 1px, transparent 1px);
+      background-size: 72px 72px;
+      mask-image: radial-gradient(circle at 50% 28%, black, transparent 76%);
+    }
+    .brand { display: flex; align-items: center; gap: 16px; font-weight: 800; }
+    .mark {
+      width: 64px; height: 64px; border-radius: 20px;
+      display: grid; place-items: center;
+      border: 1px solid rgba(255,255,255,.22);
+      background: linear-gradient(135deg, rgba(66,133,244,.95), rgba(161,108,227,.72), rgba(227,109,125,.68));
+      box-shadow: 0 26px 70px rgba(66,133,244,.28);
+      font-size: 22px;
+    }
+    .eyebrow {
+      display: inline-flex; width: fit-content;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.075);
+      border-radius: 999px;
+      padding: 12px 18px;
+      color: rgba(255,255,255,.82);
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .title {
+      margin: 0;
+      line-height: .98;
+      font-weight: 900;
+      letter-spacing: 0;
+      background: linear-gradient(94deg, #4285f4, #a16ce3 54%, #e36d7d);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .subtitle {
+      margin: 0;
+      color: #d7dded;
+      line-height: 1.55;
+      font-weight: 500;
+    }
+    .cta {
+      width: fit-content;
+      border-radius: 999px;
+      padding: 18px 28px;
+      background: #4285f4;
+      color: white;
+      font-weight: 900;
+      box-shadow: 0 22px 56px rgba(66,133,244,.35);
+    }
+    .glass {
+      border: 1px solid rgba(255,255,255,.13);
+      background: linear-gradient(180deg, rgba(255,255,255,.105), rgba(255,255,255,.035)), rgba(18,23,42,.72);
+      box-shadow: 0 30px 90px rgba(0,0,0,.36);
+      backdrop-filter: blur(16px);
+    }
+    .dashboard { border-radius: 34px; padding: 28px; }
+    .provider-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .pill {
+      border-radius: 999px;
+      padding: 10px 14px;
+      color: #dce5ff;
+      background: rgba(255,255,255,.075);
+      border: 1px solid rgba(255,255,255,.11);
+      font-weight: 700;
+    }
+    .score {
+      width: 210px; height: 210px; border-radius: 50%;
+      display: grid; place-items: center;
+      margin: 30px auto 24px;
+      background:
+        radial-gradient(circle at 30% 22%, rgba(255,255,255,.82), transparent 9%),
+        radial-gradient(circle at 34% 31%, rgba(66,133,244,.95), transparent 36%),
+        radial-gradient(circle at 68% 34%, rgba(161,108,227,.82), transparent 38%),
+        radial-gradient(circle at 54% 80%, rgba(227,109,125,.72), transparent 36%),
+        #141a30;
+      box-shadow: inset 0 1px 28px rgba(255,255,255,.2), 0 30px 80px rgba(66,133,244,.26);
+    }
+    .score strong { display: block; font-size: 64px; line-height: .9; }
+    .score span { color: rgba(255,255,255,.74); font-size: 16px; font-weight: 800; }
+    .metric { border-radius: 24px; padding: 18px; background: rgba(255,255,255,.065); }
+    .metric b { display:block; font-size: 34px; margin-top: 6px; }
+    .metric span { color: #aab4cf; font-size: 15px; font-weight: 700; }
+    .scan { height: 11px; border-radius: 999px; background: rgba(255,255,255,.09); overflow: hidden; }
+    .scan:before {
+      content: ""; display: block; width: 54%; height: 100%; border-radius: inherit;
+      background: linear-gradient(90deg, transparent, #4285f4, #a16ce3, transparent);
+      transform: translateX(78%);
+    }
+    .rtl { direction: rtl; text-align: right; font-family: "Segoe UI", Tahoma, Arial, sans-serif; }
+    .ltr { direction: ltr; text-align: left; }
+  </style>
+      <div class="grid"></div>
+      
+      <div style="position:absolute;inset:52px;display:grid;grid-template-columns:1.12fr .88fr;gap:50px;align-items:center">
+        <div class="rtl" style="display:flex;flex-direction:column;gap:22px">
+          <div class="brand">
+    <div class="mark" style="width:56px;height:56px;font-size:19px;border-radius:17px">GS</div>
+    <div>
+      <div style="font-size:20px;line-height:1">GeoSight</div>
+      <div style="margin-top:6px;color:#aab4cf;font-size:10px;font-weight:700">Your brand visibility in the AI era</div>
+    </div>
+  </div>
+          <div class="eyebrow" style="font-size:16px;padding:10px 15px">Arabic-native AI visibility</div>
+          <h1 class="title" style="font-size:66px">قس ظهور علامتك في محركات الذكاء الاصطناعي</h1>
+          <p class="subtitle" style="font-size:24px">ChatGPT • Gemini • Perplexity</p>
+        </div>
+        <div class="dashboard glass" style="transform:scale(0.74);transform-origin:center">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:20px">
+      <div>
+        <div style="font-size:24px;font-weight:900">Visibility simulation</div>
+        <div style="margin-top:8px;color:#aab4cf;font-size:16px;font-weight:700">Arabic-native GEO scan</div>
+      </div>
+      <div class="pill" style="color:#bfffe5;background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.26)">Live scan</div>
+    </div>
+    <div class="score"><div style="text-align:center"><span>GEO Score</span><strong>78</strong></div></div>
+    <div class="provider-row" style="justify-content:center;margin-bottom:20px">
+      <div class="pill">ChatGPT</div><div class="pill">Gemini</div><div class="pill">Perplexity</div>
+    </div>
+    <div style="display:grid;gap:14px">
+      
+        <div class="metric">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:18px">
+            <span>Prompt interpretation</span><b style="font-size:18px;margin:0;color:#e8ecfb">01</b>
+          </div>
+          <div class="scan" style="margin-top:13px"></div>
+        </div>
+      
+        <div class="metric">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:18px">
+            <span>Dialect normalization</span><b style="font-size:18px;margin:0;color:#e8ecfb">02</b>
+          </div>
+          <div class="scan" style="margin-top:13px"></div>
+        </div>
+      
+        <div class="metric">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:18px">
+            <span>Brand detection</span><b style="font-size:18px;margin:0;color:#e8ecfb">03</b>
+          </div>
+          <div class="scan" style="margin-top:13px"></div>
+        </div>
+      
+    </div>
+  </div>
+      </div>
+    </div>
+  </foreignObject>
+</svg>

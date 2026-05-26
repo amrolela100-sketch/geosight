@@ -57,10 +57,7 @@ export const apiKeysVault = pgTable(
   (table) => ({
     orgIdx: index('vault_org_idx').on(table.orgId),
     /** Each org has at most one active key per provider at a time. */
-    uniqueOrgProvider: uniqueIndex('vault_org_provider_unique').on(
-      table.orgId,
-      table.provider,
-    ),
+    uniqueOrgProvider: uniqueIndex('vault_org_provider_unique').on(table.orgId, table.provider),
   }),
 );
 

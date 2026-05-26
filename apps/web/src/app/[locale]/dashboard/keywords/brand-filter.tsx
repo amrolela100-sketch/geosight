@@ -5,13 +5,7 @@ import { useTranslations } from 'next-intl';
 
 import type { BrandOption } from './actions';
 
-export function BrandFilter({
-  brands,
-  selected,
-}: {
-  brands: BrandOption[];
-  selected?: string;
-}) {
+export function BrandFilter({ brands, selected }: { brands: BrandOption[]; selected?: string }) {
   const t = useTranslations('Keywords.filter');
   const router = useRouter();
   const pathname = usePathname();
@@ -35,7 +29,7 @@ export function BrandFilter({
         id="brand-filter"
         value={selected ?? ''}
         onChange={handleChange}
-        className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+        className="border-border bg-background focus:border-primary focus:ring-primary rounded-md border px-3 py-2 text-sm outline-none focus:ring-1"
       >
         <option value="">{t('all')}</option>
         {brands.map((b) => (

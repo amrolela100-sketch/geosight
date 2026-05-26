@@ -2,13 +2,7 @@ import 'server-only';
 
 import { auth } from '@clerk/nextjs/server';
 
-import {
-  eq,
-  users,
-  withClerkAuth,
-  type ClerkAuthContext,
-  type DbTransaction,
-} from '@geosight/db';
+import { eq, users, withClerkAuth, type ClerkAuthContext, type DbTransaction } from '@geosight/db';
 
 import { getServiceDb } from './db';
 
@@ -22,18 +16,14 @@ export class UnauthorizedError extends Error {
 export class NoActiveOrgError extends Error {
   readonly code = 'NO_ACTIVE_ORG' as const;
   constructor() {
-    super(
-      'Clerk session has no active organization. RLS denies multi-tenant rows in this state.',
-    );
+    super('Clerk session has no active organization. RLS denies multi-tenant rows in this state.');
   }
 }
 
 export class UserNotProvisionedError extends Error {
   readonly code = 'USER_NOT_PROVISIONED' as const;
   constructor(clerkUserId: string) {
-    super(
-      `Clerk user ${clerkUserId} has no users row yet — webhook may not have fired.`,
-    );
+    super(`Clerk user ${clerkUserId} has no users row yet — webhook may not have fired.`);
   }
 }
 
@@ -80,9 +70,7 @@ export async function getCurrentClerkContext(): Promise<ClerkAuthContext> {
  * tenant data. Service-only paths (webhooks, internal jobs) should use
  * getServiceDb() directly.
  */
-export async function withClerkRequest<T>(
-  fn: (tx: DbTransaction) => Promise<T>,
-): Promise<T> {
+export async function withClerkRequest<T>(fn: (tx: DbTransaction) => Promise<T>): Promise<T> {
   const ctx = await getCurrentClerkContext();
   return withClerkAuth(getServiceDb(), ctx, fn);
 }

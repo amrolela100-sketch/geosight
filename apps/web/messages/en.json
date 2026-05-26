@@ -19,6 +19,28 @@
       "successTitle": "You're on the list",
       "successBody": "We've sent you a confirmation email. We'll reach out as new seats open up.",
       "errorGeneric": "Something went wrong, please try again."
+    },
+    "demo": {
+      "label": "Neural scan simulation",
+      "queryExample": "Which digital agency shows up best for Saudi startups?"
+    },
+    "stats": {
+      "score": { "label": "GEO Score", "value": "78", "note": "+12 this month" },
+      "dialects": { "label": "Arabic NLP", "value": "4", "note": "Dialects tracked" },
+      "mentions": { "label": "Mentions", "value": "126", "note": "Across live prompts" }
+    },
+    "simulation": {
+      "title": "Visibility simulation",
+      "subtitle": "Gemini-inspired motion language adapted to GeoSight.",
+      "live": "Live scan",
+      "orbLabel": "GEO Score",
+      "phaseNote": "Arabic-native signals with dialect-aware parsing.",
+      "phases": {
+        "prompt": "Prompt interpretation",
+        "dialect": "Dialect normalization",
+        "brand": "Brand detection",
+        "scoring": "Visibility scoring"
+      }
     }
   },
   "Auth": {
@@ -33,12 +55,34 @@
   },
   "Dashboard": {
     "brand": "GeoSight",
+    "searchPlaceholder": "Quick search",
+    "overviewLabel": "Operating console",
     "welcomeTitle": "Welcome to your dashboard",
     "welcomeSubtitle": "Track how your brand surfaces in ChatGPT, Gemini, and Perplexity.",
+    "actions": {
+      "addBrand": "Add brand",
+      "addKeyword": "Add keyword"
+    },
     "metrics": {
       "brands": { "label": "Brands", "hint": "Add your first brand to get started" },
       "keywords": { "label": "Tracked keywords", "hint": "Add keywords to start tracking" },
       "scans": { "label": "Completed scans", "hint": "No scans run yet" }
+    },
+    "readiness": {
+      "title": "Phase 1 readiness",
+      "subtitle": "This path confirms signed-in users land inside a real product surface using the new design system.",
+      "ready": "ready",
+      "items": {
+        "providers": "Core providers are visible inside the product experience",
+        "parser": "Arabic analysis flow is reserved for Phase 2",
+        "dashboard": "Dashboard shell works and reads current data"
+      }
+    },
+    "next": {
+      "title": "Next step",
+      "subtitle": "After the landing and dashboard shell are closed, we move into the GEO engine.",
+      "first": "Phase 2 / Week 7: API + Queue System",
+      "firstHint": "Fastify, Zod, Redis/BullMQ, and the first manual scan/status route."
     },
     "emptyState": "Start by adding your first brand and keywords.",
     "nav": {

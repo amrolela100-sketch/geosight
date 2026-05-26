@@ -4,7 +4,11 @@
   "private": true,
   "description": "Shared TypeScript, ESLint, and Tailwind base configs for the GeoSight monorepo.",
   "type": "module",
-  "files": ["typescript", "eslint", "tailwind"],
+  "files": [
+    "typescript",
+    "eslint",
+    "tailwind"
+  ],
   "exports": {
     "./eslint/base": "./eslint/base.js",
     "./eslint/next": "./eslint/next.js",

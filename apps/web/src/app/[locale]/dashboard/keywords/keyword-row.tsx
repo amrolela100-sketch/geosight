@@ -5,11 +5,7 @@ import { useTranslations } from 'next-intl';
 
 import { cn } from '@/lib/utils';
 
-import {
-  deleteKeywordAction,
-  setKeywordActiveAction,
-  type KeywordListItem,
-} from './actions';
+import { deleteKeywordAction, setKeywordActiveAction, type KeywordListItem } from './actions';
 
 export function KeywordRow({ keyword }: { keyword: KeywordListItem }) {
   const t = useTranslations('Keywords.row');
@@ -35,10 +31,10 @@ export function KeywordRow({ keyword }: { keyword: KeywordListItem }) {
   }
 
   return (
-    <article className="flex items-start justify-between gap-4 rounded-xl border border-border bg-card/40 p-4">
+    <article className="border-border bg-card/40 flex items-start justify-between gap-4 rounded-xl border p-4">
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <p className="truncate text-base font-medium">{keyword.queryText}</p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           {keyword.brandNameAr} <span className="opacity-60">/ {keyword.brandNameEn}</span>
         </p>
         <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
@@ -77,7 +73,7 @@ export function KeywordRow({ keyword }: { keyword: KeywordListItem }) {
           onClick={handleDelete}
           disabled={isPending}
           className={cn(
-            'rounded-md border border-destructive/40 px-3 py-1.5 text-xs font-medium text-destructive transition',
+            'border-destructive/40 text-destructive rounded-md border px-3 py-1.5 text-xs font-medium transition',
             isPending ? 'opacity-60' : 'hover:bg-destructive/10',
           )}
         >
@@ -90,7 +86,7 @@ export function KeywordRow({ keyword }: { keyword: KeywordListItem }) {
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded-md border border-border bg-background px-2 py-0.5 text-xs text-muted-foreground">
+    <span className="border-border bg-background text-muted-foreground rounded-md border px-2 py-0.5 text-xs">
       {children}
     </span>
   );

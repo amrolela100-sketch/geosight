@@ -27,9 +27,7 @@ const RLS_FILE = resolve(here, '../migrations/rls-policies.sql');
 async function main(): Promise<void> {
   const url = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
   if (!url) {
-    throw new Error(
-      'DATABASE_URL_UNPOOLED (or DATABASE_URL) is required. See .env.example.',
-    );
+    throw new Error('DATABASE_URL_UNPOOLED (or DATABASE_URL) is required. See .env.example.');
   }
 
   const { db, sql } = createDatabase({ url, forMigration: true });

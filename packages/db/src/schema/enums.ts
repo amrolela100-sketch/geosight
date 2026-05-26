@@ -1,9 +1,4 @@
-
-import {
-  DIALECTS,
-  KEYWORD_DIALECTS,
-  LANGUAGES,
-} from '@geosight/shared/constants';
+import { DIALECTS, KEYWORD_DIALECTS, LANGUAGES } from '@geosight/shared/constants';
 import { PLAN_NAMES } from '@geosight/shared/constants';
 import { AI_PROVIDERS, VAULT_PROVIDERS } from '@geosight/shared/constants';
 import { ORG_ROLES } from '@geosight/shared/constants';

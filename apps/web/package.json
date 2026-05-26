@@ -4,7 +4,7 @@
   "private": true,
   "description": "GeoSight web app — Next.js 14 (App Router), RTL-first dashboard and marketing site.",
   "scripts": {
-    "dev": "next dev --turbo --port 3000",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start --port 3000",
     "lint": "next lint --max-warnings 0",

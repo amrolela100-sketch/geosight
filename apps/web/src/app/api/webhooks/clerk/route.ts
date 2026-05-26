@@ -64,10 +64,7 @@ function fullName(data: ClerkUserData): string | null {
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const secret = env.CLERK_WEBHOOK_SECRET;
   if (!secret) {
-    return NextResponse.json(
-      { error: 'CLERK_WEBHOOK_SECRET is not configured.' },
-      { status: 503 },
-    );
+    return NextResponse.json({ error: 'CLERK_WEBHOOK_SECRET is not configured.' }, { status: 503 });
   }
 
   const svixId = req.headers.get('svix-id');

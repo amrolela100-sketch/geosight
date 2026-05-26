@@ -14,16 +14,14 @@ let cached: { db: Database; sql: SqlClient } | null = null;
 export function getServiceDb(): Database {
   if (cached) return cached.db;
 
-  const url = env.DATABASE_URL_UNPOOLED ?? env.DATABASE_URL;
+  const url = env.DATABASE_URL ?? env.DATABASE_URL_UNPOOLED;
   if (!url) {
-    throw new Error(
-      'DATABASE_URL is required for server-side DB access. See .env.example.',
-    );
+    throw new Error('DATABASE_URL is required for server-side DB access. See .env.example.');
   }
 
-  // Long-lived process (Next.js server) — allow a larger pool than the edge
-  // default. Unpooled URL because RLS-bypassing service paths may run DDL-ish
-  // operations that pgbouncer can't proxy.
+  // Next.js runtime paths do OLTP reads/writes, not migrations. Prefer the
+  // pooled URL for local/dev/Vercel reliability, falling back to direct only
+  // when no pooled URL is configured.
   cached = createDatabase({ url, max: 10 });
   return cached.db;
 }

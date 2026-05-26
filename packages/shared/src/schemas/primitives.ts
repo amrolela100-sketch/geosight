@@ -28,7 +28,9 @@ export const niceString = (max = 200) =>
   z.string().trim().min(1, 'required').max(max, `≤ ${max} characters`);
 
 /** Optional URL field — accepts empty string as null. */
-export const optionalUrl = z.union([z.string().url(), z.literal('')]).transform((v) => (v === '' ? null : v));
+export const optionalUrl = z
+  .union([z.string().url(), z.literal('')])
+  .transform((v) => (v === '' ? null : v));
 
 /** Pagination cursor schema — used by every listing endpoint. */
 export const paginationSchema = z.object({

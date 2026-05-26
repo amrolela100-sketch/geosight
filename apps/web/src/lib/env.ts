@@ -2,6 +2,10 @@ import 'server-only';
 
 import { z } from 'zod';
 
+const emptyToUndefined = (value: unknown) => (value === '' ? undefined : value);
+const optionalNonEmptyString = z.preprocess(emptyToUndefined, z.string().min(1).optional());
+const optionalUrl = z.preprocess(emptyToUndefined, z.string().url().optional());
+
 /** Runtime env schema for the Next.js server runtime.
  *
  * Public (NEXT_PUBLIC_*) vars are validated lazily by `clientEnv` so they
@@ -11,19 +15,19 @@ const serverEnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   APP_URL: z.string().url().default('http://localhost:3000'),
 
-  DATABASE_URL: z.string().min(1).optional(),
-  DATABASE_URL_UNPOOLED: z.string().min(1).optional(),
+  DATABASE_URL: optionalNonEmptyString,
+  DATABASE_URL_UNPOOLED: optionalNonEmptyString,
 
-  CLERK_SECRET_KEY: z.string().min(1).optional(),
-  CLERK_WEBHOOK_SECRET: z.string().min(1).optional(),
+  CLERK_SECRET_KEY: optionalNonEmptyString,
+  CLERK_WEBHOOK_SECRET: optionalNonEmptyString,
 
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
+  SUPABASE_SERVICE_ROLE_KEY: optionalNonEmptyString,
 
-  RESEND_API_KEY: z.string().min(1).optional(),
+  RESEND_API_KEY: optionalNonEmptyString,
   EMAIL_FROM: z.string().default('GeoSight <noreply@geosight.app>'),
 
-  SENTRY_DSN: z.string().url().optional(),
-  SENTRY_AUTH_TOKEN: z.string().optional(),
+  SENTRY_DSN: optionalUrl,
+  SENTRY_AUTH_TOKEN: optionalNonEmptyString,
 });
 
 const parsed = serverEnvSchema.safeParse(process.env);
@@ -34,7 +38,9 @@ if (!parsed.success) {
   console.warn('[env] server env validation warnings:', parsed.error.flatten().fieldErrors);
 }
 
-export const env = parsed.success ? parsed.data : (serverEnvSchema.partial().parse(process.env) as z.infer<typeof serverEnvSchema>);
+export const env = parsed.success
+  ? parsed.data
+  : (serverEnvSchema.partial().parse(process.env) as z.infer<typeof serverEnvSchema>);
 
 /** Public, browser-visible env. */
 export const clientEnv = {

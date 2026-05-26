@@ -18,11 +18,7 @@ import {
   users,
   withClerkAuth,
 } from '../src/index.js';
-import type {
-  ClerkAuthContext,
-  Database,
-  SqlClient,
-} from '../src/index.js';
+import type { ClerkAuthContext, Database, SqlClient } from '../src/index.js';
 
 const runId = randomUUID().slice(0, 8);
 
@@ -38,11 +34,9 @@ let keywordAId: string;
 let keywordBId: string;
 
 beforeAll(async () => {
-  const url = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
+  const url = process.env.DATABASE_URL ?? process.env.DATABASE_URL_UNPOOLED;
   if (!url) {
-    throw new Error(
-      'DATABASE_URL_UNPOOLED (or DATABASE_URL) is required to run RLS tests.',
-    );
+    throw new Error('DATABASE_URL (or DATABASE_URL_UNPOOLED) is required to run RLS tests.');
   }
 
   const created = createDatabase({ url, forMigration: true });
@@ -170,10 +164,7 @@ describe('RLS isolation — keywords (FK chain through brands.org_id)', () => {
 
   it('User A cannot DELETE Keyword B — returns 0 rows', async () => {
     const deleted = await withClerkAuth(db, ctxFor(userAId, orgAId), (tx) =>
-      tx
-        .delete(keywords)
-        .where(eq(keywords.id, keywordBId))
-        .returning({ id: keywords.id }),
+      tx.delete(keywords).where(eq(keywords.id, keywordBId)).returning({ id: keywords.id }),
     );
     expect(deleted).toHaveLength(0);
   });

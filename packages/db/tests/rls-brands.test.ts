@@ -1,6 +1,7 @@
 /** Integration test — proves that the RLS policies + withClerkAuth wiring
  * actually deny cross-tenant reads, writes, and forged-org_id inserts on the
- * brands table. Requires a live Postgres reachable via DATABASE_URL_UNPOOLED.
+ * brands table. Requires a live Postgres reachable via DATABASE_URL or
+ * DATABASE_URL_UNPOOLED.
  *
  * Setup/teardown bypass RLS (service-role connection). Each `it` opens its
  * own Clerk-scoped transaction with `withClerkAuth`, which mirrors what a
@@ -11,19 +12,8 @@ import { randomUUID } from 'node:crypto';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import {
-  brands,
-  createDatabase,
-  eq,
-  organizations,
-  users,
-  withClerkAuth,
-} from '../src/index.js';
-import type {
-  ClerkAuthContext,
-  Database,
-  SqlClient,
-} from '../src/index.js';
+import { brands, createDatabase, eq, organizations, users, withClerkAuth } from '../src/index.js';
+import type { ClerkAuthContext, Database, SqlClient } from '../src/index.js';
 
 const runId = randomUUID().slice(0, 8);
 
@@ -37,11 +27,9 @@ let brandAId: string;
 let brandBId: string;
 
 beforeAll(async () => {
-  const url = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
+  const url = process.env.DATABASE_URL ?? process.env.DATABASE_URL_UNPOOLED;
   if (!url) {
-    throw new Error(
-      'DATABASE_URL_UNPOOLED (or DATABASE_URL) is required to run RLS tests.',
-    );
+    throw new Error('DATABASE_URL (or DATABASE_URL_UNPOOLED) is required to run RLS tests.');
   }
 
   const created = createDatabase({ url, forMigration: true });
@@ -161,17 +149,11 @@ describe('RLS isolation — brands', () => {
 
   it('User A cannot DELETE Brand B — returns 0 rows', async () => {
     const deleted = await withClerkAuth(db, ctxFor(userAId, orgAId), (tx) =>
-      tx
-        .delete(brands)
-        .where(eq(brands.id, brandBId))
-        .returning({ id: brands.id }),
+      tx.delete(brands).where(eq(brands.id, brandBId)).returning({ id: brands.id }),
     );
     expect(deleted).toHaveLength(0);
 
-    const [check] = await db
-      .select({ id: brands.id })
-      .from(brands)
-      .where(eq(brands.id, brandBId));
+    const [check] = await db.select({ id: brands.id }).from(brands).where(eq(brands.id, brandBId));
     expect(check?.id).toBe(brandBId);
   });
 

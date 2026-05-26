@@ -13,7 +13,9 @@ export function hasAtLeast(role: OrgRole, minimum: OrgRole): boolean {
   return ROLE_RANK[role] >= ROLE_RANK[minimum];
 }
 
-export const ROLE_DISPLAY: Readonly<Record<OrgRole, { ar: string; en: string; description: string }>> = {
+export const ROLE_DISPLAY: Readonly<
+  Record<OrgRole, { ar: string; en: string; description: string }>
+> = {
   owner: {
     ar: 'مالك',
     en: 'Owner',

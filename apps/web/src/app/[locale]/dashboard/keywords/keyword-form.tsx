@@ -22,7 +22,7 @@ function SubmitButton() {
       type="submit"
       disabled={pending}
       className={cn(
-        'mt-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-glow transition',
+        'bg-primary text-primary-foreground shadow-glow mt-2 rounded-lg px-5 py-2.5 text-sm font-medium transition',
         pending ? 'opacity-60' : 'hover:opacity-90',
       )}
     >
@@ -52,14 +52,14 @@ export function KeywordForm({
     if (state.ok && 'message' in state && state.message === 'keyword_created') {
       // Preserve brand/language/dialect selection so the user can add several
       // keywords for the same brand quickly. Only clear the queryText field.
-      const queryInput = formRef.current?.querySelector<HTMLInputElement>('input[name="queryText"]');
+      const queryInput =
+        formRef.current?.querySelector<HTMLInputElement>('input[name="queryText"]');
       if (queryInput) queryInput.value = '';
     }
   }, [state]);
 
   const fieldErrors = !state.ok && state.fieldErrors ? state.fieldErrors : null;
-  const generalError =
-    !state.ok && state.error !== 'validation_failed' ? tErr(state.error) : null;
+  const generalError = !state.ok && state.error !== 'validation_failed' ? tErr(state.error) : null;
 
   return (
     <form ref={formRef} action={formAction} className={cn('flex flex-col gap-4', className)}>
@@ -69,7 +69,7 @@ export function KeywordForm({
           name="brandId"
           defaultValue={defaultBrandId ?? brands[0]?.id}
           required
-          className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          className="border-border bg-background focus:border-primary focus:ring-primary rounded-md border px-3 py-2 text-sm outline-none focus:ring-1"
         >
           {brands.map((b) => (
             <option key={b.id} value={b.id}>
@@ -78,7 +78,7 @@ export function KeywordForm({
           ))}
         </select>
         {fieldErrors?.brandId && (
-          <span className="text-xs text-destructive" role="alert">
+          <span className="text-destructive text-xs" role="alert">
             {fieldErrors.brandId[0]}
           </span>
         )}
@@ -91,11 +91,11 @@ export function KeywordForm({
           required
           maxLength={280}
           placeholder={t('queryTextPlaceholder')}
-          className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+          className="border-border bg-background focus:border-primary focus:ring-primary rounded-md border px-3 py-2 text-sm outline-none focus:ring-1"
         />
-        <span className="text-xs text-muted-foreground">{t('queryTextHint')}</span>
+        <span className="text-muted-foreground text-xs">{t('queryTextHint')}</span>
         {fieldErrors?.queryText && (
-          <span className="text-xs text-destructive" role="alert">
+          <span className="text-destructive text-xs" role="alert">
             {fieldErrors.queryText[0]}
           </span>
         )}
@@ -107,7 +107,7 @@ export function KeywordForm({
           <select
             name="language"
             defaultValue="ar"
-            className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+            className="border-border bg-background focus:border-primary focus:ring-primary rounded-md border px-3 py-2 text-sm outline-none focus:ring-1"
           >
             {LANGUAGES.map((lang) => (
               <option key={lang} value={lang}>
@@ -122,7 +122,7 @@ export function KeywordForm({
           <select
             name="dialect"
             defaultValue="auto"
-            className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+            className="border-border bg-background focus:border-primary focus:ring-primary rounded-md border px-3 py-2 text-sm outline-none focus:ring-1"
           >
             {DIALECTS.map((d) => (
               <option key={d} value={d}>
@@ -137,7 +137,7 @@ export function KeywordForm({
           <select
             name="schedule"
             defaultValue="daily"
-            className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+            className="border-border bg-background focus:border-primary focus:ring-primary rounded-md border px-3 py-2 text-sm outline-none focus:ring-1"
           >
             {SCHEDULES.map((s) => (
               <option key={s} value={s}>
@@ -153,13 +153,13 @@ export function KeywordForm({
           type="checkbox"
           name="isActive"
           defaultChecked
-          className="h-4 w-4 rounded border-border bg-background text-primary focus:ring-1 focus:ring-primary"
+          className="border-border bg-background text-primary focus:ring-primary h-4 w-4 rounded focus:ring-1"
         />
         <span className="font-medium">{t('isActive')}</span>
       </label>
 
       {generalError && (
-        <p className="text-xs text-destructive" role="alert">
+        <p className="text-destructive text-xs" role="alert">
           {generalError}
         </p>
       )}

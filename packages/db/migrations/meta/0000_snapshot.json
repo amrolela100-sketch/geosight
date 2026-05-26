@@ -87,30 +87,22 @@
         "organizations_clerk_org_id_unique": {
           "name": "organizations_clerk_org_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "clerk_org_id"
-          ]
+          "columns": ["clerk_org_id"]
         },
         "organizations_slug_unique": {
           "name": "organizations_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         },
         "organizations_stripe_customer_id_unique": {
           "name": "organizations_stripe_customer_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "stripe_customer_id"
-          ]
+          "columns": ["stripe_customer_id"]
         },
         "organizations_stripe_subscription_id_unique": {
           "name": "organizations_stripe_subscription_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "stripe_subscription_id"
-          ]
+          "columns": ["stripe_subscription_id"]
         }
       },
       "policies": {},
@@ -232,12 +224,8 @@
           "name": "users_org_id_organizations_id_fk",
           "tableFrom": "users",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -247,9 +235,7 @@
         "users_clerk_user_id_unique": {
           "name": "users_clerk_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "clerk_user_id"
-          ]
+          "columns": ["clerk_user_id"]
         }
       },
       "policies": {},
@@ -381,12 +367,8 @@
           "name": "api_keys_vault_org_id_organizations_id_fk",
           "tableFrom": "api_keys_vault",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -496,12 +478,8 @@
           "name": "brands_org_id_organizations_id_fk",
           "tableFrom": "brands",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -630,12 +608,8 @@
           "name": "keywords_brand_id_brands_id_fk",
           "tableFrom": "keywords",
           "tableTo": "brands",
-          "columnsFrom": [
-            "brand_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["brand_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -814,12 +788,8 @@
           "name": "scan_results_keyword_id_keywords_id_fk",
           "tableFrom": "scan_results",
           "tableTo": "keywords",
-          "columnsFrom": [
-            "keyword_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["keyword_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -942,12 +912,8 @@
           "name": "daily_metrics_brand_id_brands_id_fk",
           "tableFrom": "daily_metrics",
           "tableTo": "brands",
-          "columnsFrom": [
-            "brand_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["brand_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1079,12 +1045,8 @@
           "name": "audit_logs_org_id_organizations_id_fk",
           "tableFrom": "audit_logs",
           "tableTo": "organizations",
-          "columnsFrom": [
-            "org_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["org_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1236,11 +1198,7 @@
     "public.ai_provider": {
       "name": "ai_provider",
       "schema": "public",
-      "values": [
-        "chatgpt",
-        "gemini",
-        "perplexity"
-      ]
+      "values": ["chatgpt", "gemini", "perplexity"]
     },
     "public.audit_action": {
       "name": "audit_action",
@@ -1267,78 +1225,42 @@
     "public.dialect": {
       "name": "dialect",
       "schema": "public",
-      "values": [
-        "msa",
-        "gulf",
-        "levantine",
-        "egyptian"
-      ]
+      "values": ["msa", "gulf", "levantine", "egyptian"]
     },
     "public.keyword_dialect": {
       "name": "keyword_dialect",
       "schema": "public",
-      "values": [
-        "msa",
-        "gulf",
-        "levantine",
-        "egyptian",
-        "auto"
-      ]
+      "values": ["msa", "gulf", "levantine", "egyptian", "auto"]
     },
     "public.language": {
       "name": "language",
       "schema": "public",
-      "values": [
-        "ar",
-        "en"
-      ]
+      "values": ["ar", "en"]
     },
     "public.org_role": {
       "name": "org_role",
       "schema": "public",
-      "values": [
-        "owner",
-        "admin",
-        "member",
-        "viewer"
-      ]
+      "values": ["owner", "admin", "member", "viewer"]
     },
     "public.plan": {
       "name": "plan",
       "schema": "public",
-      "values": [
-        "starter",
-        "growth",
-        "agency",
-        "enterprise"
-      ]
+      "values": ["starter", "growth", "agency", "enterprise"]
     },
     "public.scan_schedule": {
       "name": "scan_schedule",
       "schema": "public",
-      "values": [
-        "daily",
-        "weekly",
-        "custom"
-      ]
+      "values": ["daily", "weekly", "custom"]
     },
     "public.sentiment": {
       "name": "sentiment",
       "schema": "public",
-      "values": [
-        "positive",
-        "neutral",
-        "negative"
-      ]
+      "values": ["positive", "neutral", "negative"]
     },
     "public.vault_provider": {
       "name": "vault_provider",
       "schema": "public",
-      "values": [
-        "openai",
-        "gemini",
-        "perplexity"
-      ]
+      "values": ["openai", "gemini", "perplexity"]
     }
   },
   "schemas": {},

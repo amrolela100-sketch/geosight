@@ -1,11 +1,6 @@
 import { z } from 'zod';
 
-import {
-  aiProviderSchema,
-  dialectSchema,
-  sentimentSchema,
-  uuidSchema,
-} from './primitives.js';
+import { aiProviderSchema, dialectSchema, sentimentSchema, uuidSchema } from './primitives.js';
 
 export const triggerScanSchema = z.object({
   keywordId: uuidSchema,

@@ -37,7 +37,7 @@ User → Next.js (web) → Fastify (api) ──┬─► BullMQ queue ──► 
 - **`apps/web`** never imports from `apps/api` or `workers/`. It speaks to the API over HTTP.
 - **`apps/api`** never reaches into `workers/scanner` source. It dispatches work via BullMQ jobs.
 - **`workers/scanner`** is Python and shares no code with TS — the contract is the BullMQ job payload + DB schema, both versioned via `@geosight/shared` JSON schemas.
-- **`@geosight/db`** owns *all* SQL. No raw queries elsewhere.
+- **`@geosight/db`** owns _all_ SQL. No raw queries elsewhere.
 - **`@geosight/shared`** is the only package the API and Web layer both import — keeps a single source of truth for types and Zod schemas.
 
 ## Decision Records
