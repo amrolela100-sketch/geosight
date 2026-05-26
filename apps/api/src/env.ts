@@ -9,6 +9,13 @@ const apiEnvSchema = z.object({
   API_PORT: z.coerce.number().int().positive().default(4000),
   WEB_APP_URL: z.string().url().default('http://localhost:3000'),
   REDIS_URL: optionalUrl,
+  /** Shared secret that gates the Bull Board UI + admin routes. When unset,
+   * the admin surface is disabled (404) — safer default than open access. */
+  ADMIN_API_TOKEN: z.preprocess(emptyToUndefined, z.string().min(16).optional()),
+  /** Global rate-limit ceiling. Tune per route as we add public endpoints. */
+  RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
+  RATE_LIMIT_WINDOW: z.string().default('1 minute'),
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).optional(),
 });
 
 const parsed = apiEnvSchema.safeParse(process.env);
