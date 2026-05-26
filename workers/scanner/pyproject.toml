@@ -13,6 +13,11 @@ dependencies = [
   "python-dotenv>=1.0",
   "structlog>=24.4",
   "rich>=13.7",
+  # Worker bridge (Phase 2 W8): consume BullMQ jobs enqueued by apps/api and
+  # persist scan_results via asyncpg. The TS/Python BullMQ packages share the
+  # same Lua scripts, so cross-language enqueue → consume works as-is.
+  "bullmq>=2.7",
+  "asyncpg>=0.29",
 ]
 
 [project.optional-dependencies]
@@ -25,6 +30,7 @@ dev = [
 
 [project.scripts]
 geosight-scan = "geosight_scanner.cli:app"
+geosight-worker = "geosight_scanner.worker.main:run"
 
 [build-system]
 requires = ["hatchling"]
@@ -61,6 +67,12 @@ explicit_package_bases = true
 
 [[tool.mypy.overrides]]
 module = ["rapidfuzz.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# bullmq + asyncpg ship without inline stubs; treat them as Any at the
+# adapter boundary and validate shapes locally.
+module = ["bullmq.*", "asyncpg.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

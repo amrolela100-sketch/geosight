@@ -50,7 +50,7 @@ This roadmap is the canonical execution sequence. Phases are sized so each one p
 **Goal:** the hardest, most defensible work. Six weeks dedicated.
 
 - Week 7: Fastify (`apps/api`) + Zod + BullMQ queues (`scan:scheduled`, `scan:manual`, `report:generate`, `alert:send`, `dead-letter`) + Bull Board.
-- Weeks 8–9: production Python scanner per provider — retry + exponential backoff + Redis response cache + prompt engineering matrix per dialect.
+- Weeks 8–9: production Python scanner per provider — BullMQ → Python bridge (`workers/scanner/.../worker`) + retry + exponential backoff + Redis response cache + prompt engineering matrix per dialect.
 - Weeks 10–11: **Arabic NLP parser**.
   - Build 1000-item labeled test set (250 MSA + 250 Gulf + 250 Levantine + 250 Egyptian).
   - `ArabicNormalizer` pipeline.
