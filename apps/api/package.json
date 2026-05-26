@@ -6,9 +6,10 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "scripts": {
+    "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/index.js",
     "lint": "eslint src tests --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

@@ -6,7 +6,8 @@ const optionalUrl = z.preprocess(emptyToUndefined, z.string().url().optional());
 const apiEnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   API_HOST: z.string().default('0.0.0.0'),
-  API_PORT: z.coerce.number().int().positive().default(4000),
+  API_PORT: z.coerce.number().int().positive().optional(),
+  PORT: z.coerce.number().int().positive().optional(),
   WEB_APP_URL: z.string().url().default('http://localhost:3000'),
   DATABASE_URL: z.preprocess(emptyToUndefined, z.string().url().optional()),
   REDIS_URL: optionalUrl,
@@ -26,5 +27,8 @@ if (!parsed.success) {
   throw new Error('Invalid API environment');
 }
 
-export const env = parsed.data;
+export const env = {
+  ...parsed.data,
+  API_PORT: parsed.data.API_PORT ?? parsed.data.PORT ?? 4000,
+};
 export type ApiEnv = typeof env;
