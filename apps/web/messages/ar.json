@@ -88,7 +88,8 @@
     "nav": {
       "overview": "نظرة عامة",
       "brands": "العلامات التجارية",
-      "keywords": "الكلمات المفتاحية"
+      "keywords": "الكلمات المفتاحية",
+      "settings": "الإعدادات"
     }
   },
   "Brands": {
@@ -192,5 +193,55 @@
   "Common": {
     "appName": "GeoSight",
     "tagline": "ظهور علامتك في عصر الذكاء الاصطناعي"
+  },
+  "Settings": {
+    "title": "الإعدادات",
+    "subtitle": "أدِر مفاتيح مزوّدي الذكاء الاصطناعي. مفاتيحك مشفّرة بـ AES-256-GCM ولا تترك بنيتنا التحتية بصيغة نصّية أبداً.",
+    "form": {
+      "title": "أضف أو حدّث مفتاحاً",
+      "subtitle": "نتحقّق من صلاحية المفتاح قبل الحفظ، حتى لا يصل مفتاح خاطئ إلى عمليات الفحص.",
+      "provider": "المزوّد",
+      "apiKey": "مفتاح API",
+      "apiKeyPlaceholder": "sk-...",
+      "apiKeyHint": "يُخزَّن مشفّراً. لا يُعرض إلا آخر 4 أحرف فقط.",
+      "label": "وصف (اختياري)",
+      "labelPlaceholder": "مثل: OpenAI للإنتاج",
+      "submit": "احفظ المفتاح",
+      "submitting": "جارٍ الحفظ...",
+      "success": "تم حفظ المفتاح والتحقق منه."
+    },
+    "list": {
+      "title": "المزوّدون المُعدّون"
+    },
+    "row": {
+      "noKey": "لا يوجد مفتاح مُعدّ.",
+      "lastValidatedAt": "آخر تحقق",
+      "validate": "إعادة التحقق",
+      "delete": "حذف",
+      "working": "جارٍ التنفيذ...",
+      "confirmDelete": "حذف مفتاح هذا المزوّد؟"
+    },
+    "status": {
+      "valid": "صالح",
+      "invalid": "غير صالح",
+      "missing": "غير مُعدّ"
+    },
+    "errors": {
+      "unauthorized": "يجب تسجيل الدخول.",
+      "no_active_org": "لا توجد مؤسسة نشطة في جلستك.",
+      "user_not_provisioned": "حسابك قيد التهيئة، حاول بعد لحظات.",
+      "vault_unavailable": "خزنة المفاتيح غير مُعدّة في هذه البيئة.",
+      "validation_failed": "تحقق من البيانات المدخلة.",
+      "validation_ok": "المفتاح صالح.",
+      "validation_unauthorized": "رفض المزوّد المفتاح.",
+      "validation_forbidden": "منع المزوّد الطلب.",
+      "validation_rate_limited": "المزوّد يقيّد المعدّل. حاول لاحقاً.",
+      "validation_network_error": "تعذّر الوصول إلى المزوّد.",
+      "validation_unexpected_status": "أرجع المزوّد حالة غير متوقّعة.",
+      "validation_timeout": "انتهت مهلة التحقق من المزوّد.",
+      "invalid_provider": "مزوّد غير معروف.",
+      "not_found": "لم يتم العثور على المفتاح.",
+      "internal_error": "حدث خطأ، حاول مرة أخرى."
+    }
   }
 }

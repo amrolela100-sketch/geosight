@@ -23,6 +23,7 @@ import {
   createDatabase,
   KeyVaultService,
   loadMasterKey,
+  validateKey,
   withClerkAuth,
   type ClerkAuthContext,
   type Database,
@@ -32,7 +33,6 @@ import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
 import { env } from '../env.js';
-import { validateKey } from '../services/key-validators.js';
 
 type VaultRoutesOptions = {
   db?: Database;

@@ -5,7 +5,7 @@ import {
   validateOpenAIKey,
   validatePerplexityKey,
   validateKey,
-} from '../../src/services/key-validators.js';
+} from '../src/services/key-validators.js';
 
 function mockFetch(status: number) {
   return vi.fn(async () => new Response(null, { status })) as unknown as typeof fetch;

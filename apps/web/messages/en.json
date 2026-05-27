@@ -88,7 +88,8 @@
     "nav": {
       "overview": "Overview",
       "brands": "Brands",
-      "keywords": "Keywords"
+      "keywords": "Keywords",
+      "settings": "Settings"
     }
   },
   "Brands": {
@@ -192,5 +193,55 @@
   "Common": {
     "appName": "GeoSight",
     "tagline": "Your brand visibility in the AI era"
+  },
+  "Settings": {
+    "title": "Settings",
+    "subtitle": "Manage your AI provider keys. Your keys are encrypted with AES-256-GCM and never leave our infrastructure in plaintext.",
+    "form": {
+      "title": "Add or update a key",
+      "subtitle": "We validate the key before saving so a wrong key never reaches your scans.",
+      "provider": "Provider",
+      "apiKey": "API key",
+      "apiKeyPlaceholder": "sk-...",
+      "apiKeyHint": "Stored encrypted. Only the last 4 characters are ever shown.",
+      "label": "Label (optional)",
+      "labelPlaceholder": "e.g. Production OpenAI",
+      "submit": "Save key",
+      "submitting": "Saving...",
+      "success": "Key saved and validated."
+    },
+    "list": {
+      "title": "Configured providers"
+    },
+    "row": {
+      "noKey": "No key configured.",
+      "lastValidatedAt": "Last validated",
+      "validate": "Re-validate",
+      "delete": "Delete",
+      "working": "Working...",
+      "confirmDelete": "Delete this provider key?"
+    },
+    "status": {
+      "valid": "Valid",
+      "invalid": "Invalid",
+      "missing": "Missing"
+    },
+    "errors": {
+      "unauthorized": "You must be signed in.",
+      "no_active_org": "Your session has no active organization.",
+      "user_not_provisioned": "Your account is still being provisioned. Try again in a moment.",
+      "vault_unavailable": "The key vault is not configured on this deployment.",
+      "validation_failed": "Check the values you entered.",
+      "validation_ok": "Key is valid.",
+      "validation_unauthorized": "Provider rejected the key.",
+      "validation_forbidden": "Provider forbade the request.",
+      "validation_rate_limited": "Provider is rate-limiting. Try again later.",
+      "validation_network_error": "Could not reach the provider.",
+      "validation_unexpected_status": "Provider returned an unexpected status.",
+      "validation_timeout": "Provider validation timed out.",
+      "invalid_provider": "Unknown provider.",
+      "not_found": "Key not found.",
+      "internal_error": "Something went wrong. Try again."
+    }
   }
 }

@@ -7,7 +7,7 @@
  * the same status independent of provider quirks.
  */
 
-import type { VaultProvider } from '@geosight/db';
+import type { VaultProvider } from './key-vault.js';
 
 export interface ValidationResult {
   readonly valid: boolean;
@@ -28,7 +28,7 @@ export interface ValidationResult {
 
 const DEFAULT_TIMEOUT_MS = 8_000;
 
-interface ProbeOptions {
+export interface ProbeOptions {
   readonly fetchImpl?: typeof fetch;
   readonly timeoutMs?: number;
 }

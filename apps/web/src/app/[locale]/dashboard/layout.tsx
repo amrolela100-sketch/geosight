@@ -1,6 +1,6 @@
 import { UserButton } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
-import { BarChart3, Building2, Gauge, Search } from 'lucide-react';
+import { BarChart3, Building2, Gauge, Search, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
@@ -29,6 +29,7 @@ export default async function DashboardLayout({
     { href: `${prefix}/dashboard`, label: t('nav.overview'), icon: Gauge },
     { href: `${prefix}/dashboard/brands`, label: t('nav.brands'), icon: Building2 },
     { href: `${prefix}/dashboard/keywords`, label: t('nav.keywords'), icon: BarChart3 },
+    { href: `${prefix}/dashboard/settings`, label: t('nav.settings'), icon: Settings },
   ];
 
   return (

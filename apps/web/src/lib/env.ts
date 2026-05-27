@@ -28,6 +28,10 @@ const serverEnvSchema = z.object({
 
   SENTRY_DSN: optionalUrl,
   SENTRY_AUTH_TOKEN: optionalNonEmptyString,
+
+  /** Base64-encoded 32-byte master key for AES-256-GCM in the BYOK vault.
+   * Required for vault Server Actions. Generate with `openssl rand -base64 32`. */
+  KEY_VAULT_MASTER_KEY: optionalNonEmptyString,
 });
 
 const parsed = serverEnvSchema.safeParse(process.env);
