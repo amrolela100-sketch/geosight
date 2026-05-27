@@ -44,6 +44,9 @@ importers:
       '@geosight/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@geosight/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       bullmq:
         specifier: ^5.77.3
         version: 5.77.3

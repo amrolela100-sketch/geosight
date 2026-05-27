@@ -18,6 +18,11 @@ const apiEnvSchema = z.object({
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
   RATE_LIMIT_WINDOW: z.string().default('1 minute'),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).optional(),
+  /** Base64-encoded 32-byte master key for AES-256-GCM in the BYOK vault.
+   * Optional at boot so non-vault routes still work without it; the vault
+   * service throws on first use when unset. Generate with
+   * `openssl rand -base64 32`. NEVER commit; rotate via env redeploy. */
+  KEY_VAULT_MASTER_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
 });
 
 const parsed = apiEnvSchema.safeParse(process.env);
