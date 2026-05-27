@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import pytest
 
-from geosight_scanner.worker.config import ConfigError, load_config
+from geosight_scanner.worker.config import ConfigError, VaultClientConfig, load_config
 from geosight_scanner.worker.keys import (
     EnvKeyResolver,
     VaultKeyResolver,
@@ -89,11 +89,69 @@ def test_build_key_resolver_env_mode() -> None:
     assert isinstance(resolver, EnvKeyResolver)
 
 
-def test_build_key_resolver_vault_mode_not_yet_implemented() -> None:
-    # Tripwire — once W13 lands and VaultKeyResolver is implemented this
-    # test will fail and force a follow-up to rewrite it. That's deliberate.
-    with pytest.raises(NotImplementedError):
+def test_build_key_resolver_vault_mode_requires_config() -> None:
+    # Vault mode without a populated VaultClientConfig is a programmer
+    # error — load_config() should always have set it when byok_mode=vault.
+    with pytest.raises(ValueError, match="VaultClientConfig"):
         build_key_resolver("vault")
+
+
+def test_build_key_resolver_vault_mode_with_config() -> None:
+    config = VaultClientConfig(
+        api_base_url="https://api.test",
+        internal_token="token-abc",
+        cache_ttl_seconds=300,
+    )
+    resolver = build_key_resolver("vault", vault_config=config)
+    assert isinstance(resolver, VaultKeyResolver)
+
+
+def test_load_config_vault_mode_requires_api_url_and_token() -> None:
+    with patch.dict(
+        os.environ,
+        {
+            "DATABASE_URL": "postgres://x",
+            "REDIS_URL": "redis://x",
+            "BYOK_MODE": "vault",
+        },
+        clear=True,
+    ):
+        with pytest.raises(ConfigError, match="GEOSIGHT_API_URL"):
+            load_config()
+
+    with patch.dict(
+        os.environ,
+        {
+            "DATABASE_URL": "postgres://x",
+            "REDIS_URL": "redis://x",
+            "BYOK_MODE": "vault",
+            "GEOSIGHT_API_URL": "https://api.test",
+        },
+        clear=True,
+    ):
+        with pytest.raises(ConfigError, match="INTERNAL_SERVICE_TOKEN"):
+            load_config()
+
+
+def test_load_config_vault_mode_happy_path() -> None:
+    with patch.dict(
+        os.environ,
+        {
+            "DATABASE_URL": "postgres://x",
+            "REDIS_URL": "redis://x",
+            "BYOK_MODE": "vault",
+            "GEOSIGHT_API_URL": "https://api.test/",
+            "INTERNAL_SERVICE_TOKEN": "shared-secret-1234567890",
+            "VAULT_KEY_CACHE_TTL": "900",
+        },
+        clear=True,
+    ):
+        config = load_config()
+    assert config.byok_mode == "vault"
+    assert config.vault is not None
+    assert config.vault.api_base_url == "https://api.test"
+    assert config.vault.internal_token == "shared-secret-1234567890"
+    assert config.vault.cache_ttl_seconds == 900
 
 
 def test_build_key_resolver_rejects_unknown_mode() -> None:

@@ -14,6 +14,11 @@ Optional vars:
     BYOK_MODE             — "env" (dev) | "vault" (W13). Default "env".
     LOG_LEVEL             — structlog level. Default "info".
 
+When BYOK_MODE=vault, these are required:
+    GEOSIGHT_API_URL         — base url of apps/api, e.g. https://api.geosight.app
+    INTERNAL_SERVICE_TOKEN   — shared secret matching apps/api env var
+    VAULT_KEY_CACHE_TTL      — optional, decrypt cache TTL in seconds (default 600)
+
 The env-mode BYOK shortcut treats the developer running the worker as the
 single tenant. It is INVALID in production once apps/api can stamp
 encrypted_key into api_keys_vault (Week 13) — at that point flip to
@@ -36,6 +41,13 @@ class ConfigError(RuntimeError):
 
 
 @dataclass(frozen=True, slots=True)
+class VaultClientConfig:
+    api_base_url: str
+    internal_token: str
+    cache_ttl_seconds: int
+
+
+@dataclass(frozen=True, slots=True)
 class WorkerConfig:
     database_url: str
     redis_url: str
@@ -43,6 +55,7 @@ class WorkerConfig:
     concurrency: int
     byok_mode: BYOKMode
     log_level: str
+    vault: VaultClientConfig | None = None
 
 
 def _required(name: str) -> str:
@@ -88,13 +101,38 @@ def _parse_byok_mode(raw: str | None) -> BYOKMode:
     return value  # type: ignore[return-value]
 
 
+def _parse_vault_config(byok_mode: BYOKMode) -> VaultClientConfig | None:
+    if byok_mode != "vault":
+        return None
+    api_url = _required("GEOSIGHT_API_URL").rstrip("/")
+    token = _required("INTERNAL_SERVICE_TOKEN")
+    ttl_raw = os.environ.get("VAULT_KEY_CACHE_TTL")
+    ttl = 600
+    if ttl_raw:
+        try:
+            ttl = int(ttl_raw)
+        except ValueError as err:
+            raise ConfigError(
+                f"VAULT_KEY_CACHE_TTL must be an integer, got: {ttl_raw!r}"
+            ) from err
+        if ttl < 0:
+            raise ConfigError("VAULT_KEY_CACHE_TTL must be non-negative.")
+    return VaultClientConfig(
+        api_base_url=api_url,
+        internal_token=token,
+        cache_ttl_seconds=ttl,
+    )
+
+
 def load_config() -> WorkerConfig:
     """Read worker config from process env. Raises ConfigError on bad input."""
+    byok_mode = _parse_byok_mode(os.environ.get("BYOK_MODE"))
     return WorkerConfig(
         database_url=_required("DATABASE_URL"),
         redis_url=_required("REDIS_URL"),
         queues=_parse_queues(os.environ.get("WORKER_QUEUES")),
         concurrency=_parse_concurrency(os.environ.get("WORKER_CONCURRENCY")),
-        byok_mode=_parse_byok_mode(os.environ.get("BYOK_MODE")),
+        byok_mode=byok_mode,
         log_level=(os.environ.get("LOG_LEVEL") or "info").strip().lower(),
+        vault=_parse_vault_config(byok_mode),
     )

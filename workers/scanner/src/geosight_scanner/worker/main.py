@@ -107,7 +107,7 @@ def _make_processor(deps: HandlerDeps) -> Any:
 async def _serve(config: WorkerConfig) -> None:
     """Build dependencies, start workers, block until signalled."""
     repo = await AsyncpgScanRepo.connect(config.database_url, max_size=config.concurrency)
-    keys: KeyResolver = build_key_resolver(config.byok_mode)
+    keys: KeyResolver = build_key_resolver(config.byok_mode, vault_config=config.vault)
 
     deps = HandlerDeps(
         repo=repo,
