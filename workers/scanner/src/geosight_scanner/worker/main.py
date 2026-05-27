@@ -28,6 +28,7 @@ from geosight_scanner.providers import GeminiClient, OpenAIClient, PerplexityCli
 from geosight_scanner.providers.base import ProviderClient
 from geosight_scanner.types import ProviderName
 
+from .cache import NullResponseCache, RedisResponseCache, ResponseCache
 from .config import ConfigError, WorkerConfig, load_config
 from .db import AsyncpgScanRepo
 from .handler import (
@@ -108,11 +109,20 @@ async def _serve(config: WorkerConfig) -> None:
     """Build dependencies, start workers, block until signalled."""
     repo = await AsyncpgScanRepo.connect(config.database_url, max_size=config.concurrency)
     keys: KeyResolver = build_key_resolver(config.byok_mode, vault_config=config.vault)
+    response_cache: ResponseCache
+    if config.response_cache_ttl_seconds > 0:
+        response_cache = RedisResponseCache.from_url(
+            config.redis_url,
+            ttl_seconds=config.response_cache_ttl_seconds,
+        )
+    else:
+        response_cache = NullResponseCache()
 
     deps = HandlerDeps(
         repo=repo,
         keys=keys,
         provider_factory=_default_provider_factory,
+        response_cache=response_cache,
     )
     process = _make_processor(deps)
 
@@ -161,7 +171,10 @@ async def _serve(config: WorkerConfig) -> None:
         try:
             await keys.close()
         finally:
-            await repo.close()
+            try:
+                await response_cache.close()
+            finally:
+                await repo.close()
         log.info("worker.stopped")
 
 

@@ -40,6 +40,63 @@ def test_load_config_defaults() -> None:
     assert config.concurrency == 4
     assert config.byok_mode == "env"
     assert config.log_level == "info"
+    assert config.response_cache_ttl_seconds == 86_400
+
+
+def test_load_config_response_cache_ttl_disabled_with_zero() -> None:
+    with patch.dict(
+        os.environ,
+        {
+            "DATABASE_URL": "postgres://x",
+            "REDIS_URL": "redis://x",
+            "RESPONSE_CACHE_TTL": "0",
+        },
+        clear=True,
+    ):
+        config = load_config()
+    assert config.response_cache_ttl_seconds == 0
+
+
+def test_load_config_response_cache_ttl_custom_value() -> None:
+    with patch.dict(
+        os.environ,
+        {
+            "DATABASE_URL": "postgres://x",
+            "REDIS_URL": "redis://x",
+            "RESPONSE_CACHE_TTL": "3600",
+        },
+        clear=True,
+    ):
+        config = load_config()
+    assert config.response_cache_ttl_seconds == 3600
+
+
+def test_load_config_rejects_negative_response_cache_ttl() -> None:
+    with patch.dict(
+        os.environ,
+        {
+            "DATABASE_URL": "postgres://x",
+            "REDIS_URL": "redis://x",
+            "RESPONSE_CACHE_TTL": "-1",
+        },
+        clear=True,
+    ):
+        with pytest.raises(ConfigError, match="non-negative"):
+            load_config()
+
+
+def test_load_config_rejects_non_integer_response_cache_ttl() -> None:
+    with patch.dict(
+        os.environ,
+        {
+            "DATABASE_URL": "postgres://x",
+            "REDIS_URL": "redis://x",
+            "RESPONSE_CACHE_TTL": "ten-minutes",
+        },
+        clear=True,
+    ):
+        with pytest.raises(ConfigError, match="integer"):
+            load_config()
 
 
 def test_load_config_parses_queue_subset() -> None:

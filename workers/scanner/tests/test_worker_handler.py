@@ -14,6 +14,7 @@ import pytest
 
 from geosight_scanner.providers.base import ProviderClient, ProviderError
 from geosight_scanner.types import ProviderName, ProviderResponse
+from geosight_scanner.worker.cache import NullResponseCache, ResponseCache
 from geosight_scanner.worker.db import BrandRow, KeywordRow, ScanResultInsert
 from geosight_scanner.worker.handler import (
     HandlerDeps,
@@ -348,3 +349,156 @@ async def test_env_key_resolver_raises_when_missing() -> None:
     resolver = EnvKeyResolver({})
     with pytest.raises(KeyResolutionError):
         await resolver.resolve("org-1", ProviderName.OPENAI)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Response cache integration — guards the Phase 2 backfill where the handler
+# now consults a cache before calling the provider.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class RecordingCache:
+    """ResponseCache that records every call and serves canned hits."""
+
+    def __init__(self, prepared: ProviderResponse | None = None) -> None:
+        self.prepared = prepared
+        self.gets: list[tuple[str, ProviderName, str]] = []
+        self.sets: list[tuple[str, ProviderName, str, ProviderResponse]] = []
+
+    async def get(
+        self, *, org_id: str, provider: ProviderName, prompt: str
+    ) -> ProviderResponse | None:
+        self.gets.append((org_id, provider, prompt))
+        return self.prepared
+
+    async def set(
+        self,
+        *,
+        org_id: str,
+        provider: ProviderName,
+        prompt: str,
+        response: ProviderResponse,
+    ) -> None:
+        self.sets.append((org_id, provider, prompt, response))
+
+    async def close(self) -> None:
+        return None
+
+
+class ExplodingCache:
+    """ResponseCache that raises on every operation — proves graceful fallback."""
+
+    def __init__(self) -> None:
+        self.gets = 0
+        self.sets = 0
+
+    async def get(self, **_: object) -> ProviderResponse | None:
+        self.gets += 1
+        raise RuntimeError("cache backend exploded")
+
+    async def set(self, **_: object) -> None:
+        self.sets += 1
+        raise RuntimeError("cache backend exploded")
+
+    async def close(self) -> None:
+        return None
+
+
+@pytest.mark.asyncio
+async def test_process_scan_job_caches_provider_response_after_miss() -> None:
+    repo = FakeRepo(brand=_brand_row(), keywords=[_keyword_row()])
+    providers = {ProviderName.OPENAI: FakeProvider(ProviderName.OPENAI)}
+    cache = RecordingCache(prepared=None)  # cold cache → all misses
+    deps = HandlerDeps(
+        repo=repo,
+        keys=EnvKeyResolver({"OPENAI_API_KEY": "k"}),
+        provider_factory=_factory_with(providers),
+        providers=(ProviderName.OPENAI,),
+        response_cache=cache,
+    )
+
+    result = await process_scan_job(_payload(), deps)
+
+    assert result.rows_written == 1
+    # Provider WAS called (cache miss) and the response was then stored.
+    assert providers[ProviderName.OPENAI].calls == 1
+    assert len(cache.gets) == 1
+    assert len(cache.sets) == 1
+    assert cache.sets[0][1] == ProviderName.OPENAI
+
+
+@pytest.mark.asyncio
+async def test_process_scan_job_cache_hit_skips_provider_call() -> None:
+    repo = FakeRepo(brand=_brand_row(), keywords=[_keyword_row()])
+    fake_provider = FakeProvider(ProviderName.OPENAI)
+    cached_response = ProviderResponse(
+        provider=ProviderName.OPENAI,
+        text="نوصي بـ سامسونج من الكاش.",
+        citations=("https://cache.example.com",),
+        latency_ms=1,
+        fetched_at=datetime.now(UTC),
+        raw={"source": "cache"},
+    )
+    cache = RecordingCache(prepared=cached_response)
+    deps = HandlerDeps(
+        repo=repo,
+        keys=EnvKeyResolver({"OPENAI_API_KEY": "k"}),
+        provider_factory=_factory_with({ProviderName.OPENAI: fake_provider}),
+        providers=(ProviderName.OPENAI,),
+        response_cache=cache,
+    )
+
+    result = await process_scan_job(_payload(), deps)
+
+    assert result.rows_written == 1
+    # Crucial: provider was NEVER called because the cache served the response.
+    assert fake_provider.calls == 0
+    assert len(cache.gets) == 1
+    # And we don't re-store what came back from cache.
+    assert len(cache.sets) == 0
+    # The persisted row reflects the cached response, not a fresh provider call.
+    assert repo.inserted[0].raw_response["text"] == cached_response.text
+
+
+@pytest.mark.asyncio
+async def test_process_scan_job_continues_when_cache_explodes() -> None:
+    """A broken cache must never break the scan path — fall through to the provider."""
+    repo = FakeRepo(brand=_brand_row(), keywords=[_keyword_row()])
+    providers = {ProviderName.OPENAI: FakeProvider(ProviderName.OPENAI)}
+    cache = ExplodingCache()
+    deps = HandlerDeps(
+        repo=repo,
+        keys=EnvKeyResolver({"OPENAI_API_KEY": "k"}),
+        provider_factory=_factory_with(providers),
+        providers=(ProviderName.OPENAI,),
+        response_cache=cache,
+    )
+
+    result = await process_scan_job(_payload(), deps)
+
+    assert result.rows_written == 1
+    assert result.rows_failed == 0
+    # Both get + set were attempted and both raised, but the job completed.
+    assert cache.gets == 1
+    assert cache.sets == 1
+    assert providers[ProviderName.OPENAI].calls == 1
+
+
+@pytest.mark.asyncio
+async def test_process_scan_job_default_cache_is_null_cache() -> None:
+    """HandlerDeps default is NullResponseCache — proves the no-cache default path."""
+    repo = FakeRepo(brand=_brand_row(), keywords=[_keyword_row()])
+    deps = HandlerDeps(
+        repo=repo,
+        keys=EnvKeyResolver({"OPENAI_API_KEY": "k"}),
+        provider_factory=_factory_with({
+            ProviderName.OPENAI: FakeProvider(ProviderName.OPENAI),
+        }),
+        providers=(ProviderName.OPENAI,),
+    )
+    assert isinstance(deps.response_cache, NullResponseCache)
+    # Sanity: ResponseCache import is exercised for type-checker reasons.
+    _ = ResponseCache
+
+    result = await process_scan_job(_payload(), deps)
+    assert result.rows_written == 1

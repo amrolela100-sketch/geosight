@@ -55,6 +55,7 @@ class WorkerConfig:
     concurrency: int
     byok_mode: BYOKMode
     log_level: str
+    response_cache_ttl_seconds: int
     vault: VaultClientConfig | None = None
 
 
@@ -91,6 +92,18 @@ def _parse_concurrency(raw: str | None) -> int:
         raise ConfigError(f"WORKER_CONCURRENCY must be an integer, got: {raw!r}") from err
     if value < 1 or value > 64:
         raise ConfigError(f"WORKER_CONCURRENCY must be between 1 and 64, got: {value}")
+    return value
+
+
+def _parse_response_cache_ttl(raw: str | None) -> int:
+    if not raw:
+        return 86_400
+    try:
+        value = int(raw)
+    except ValueError as err:
+        raise ConfigError(f"RESPONSE_CACHE_TTL must be an integer, got: {raw!r}") from err
+    if value < 0:
+        raise ConfigError("RESPONSE_CACHE_TTL must be non-negative.")
     return value
 
 
@@ -134,5 +147,8 @@ def load_config() -> WorkerConfig:
         concurrency=_parse_concurrency(os.environ.get("WORKER_CONCURRENCY")),
         byok_mode=byok_mode,
         log_level=(os.environ.get("LOG_LEVEL") or "info").strip().lower(),
+        response_cache_ttl_seconds=_parse_response_cache_ttl(
+            os.environ.get("RESPONSE_CACHE_TTL")
+        ),
         vault=_parse_vault_config(byok_mode),
     )

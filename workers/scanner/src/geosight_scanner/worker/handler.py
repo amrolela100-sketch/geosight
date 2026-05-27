@@ -19,7 +19,7 @@ Design notes:
 from __future__ import annotations
 
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
@@ -28,8 +28,9 @@ import structlog
 
 from geosight_scanner.parse import parse
 from geosight_scanner.providers.base import ProviderClient, ProviderError
-from geosight_scanner.types import Brand, Dialect, Probe, ProviderName
+from geosight_scanner.types import Brand, Dialect, Probe, ProviderName, ProviderResponse
 
+from .cache import NullResponseCache, ResponseCache
 from .db import KeywordRow, ScanRepo, ScanResultInsert
 from .keys import KeyResolutionError, KeyResolver
 
@@ -136,6 +137,7 @@ class HandlerDeps:
         ProviderName.GEMINI,
         ProviderName.PERPLEXITY,
     )
+    response_cache: ResponseCache = field(default_factory=NullResponseCache)
 
 
 @dataclass(frozen=True, slots=True)
@@ -211,6 +213,44 @@ async def _build_clients(
     return clients, tuple(skipped)
 
 
+async def _get_cached_response(
+    cache: ResponseCache,
+    *,
+    org_id: str,
+    provider: ProviderName,
+    prompt: str,
+) -> ProviderResponse | None:
+    try:
+        return await cache.get(org_id=org_id, provider=provider, prompt=prompt)
+    except Exception as err:
+        logger.warning(
+            "scan.provider.cache_get_failed",
+            provider=provider,
+            org_id=org_id,
+            error=repr(err),
+        )
+        return None
+
+
+async def _store_cached_response(
+    cache: ResponseCache,
+    *,
+    org_id: str,
+    provider: ProviderName,
+    prompt: str,
+    response: ProviderResponse,
+) -> None:
+    try:
+        await cache.set(org_id=org_id, provider=provider, prompt=prompt, response=response)
+    except Exception as err:
+        logger.warning(
+            "scan.provider.cache_set_failed",
+            provider=provider,
+            org_id=org_id,
+            error=repr(err),
+        )
+
+
 async def process_scan_job(payload: ScanJobPayload, deps: HandlerDeps) -> HandlerResult:
     """Run one scan job end-to-end. See module docstring for lifecycle."""
     log = logger.bind(
@@ -254,8 +294,23 @@ async def process_scan_job(payload: ScanJobPayload, deps: HandlerDeps) -> Handle
     for keyword in keywords:
         probe = _keyword_to_probe(keyword, brand)
         for provider_name, client in clients.items():
+            response = await _get_cached_response(
+                deps.response_cache,
+                org_id=str(payload.organization_id),
+                provider=provider_name,
+                prompt=probe.query,
+            )
+            cache_hit = response is not None
             try:
-                response = await client.query(probe.query)
+                if response is None:
+                    response = await client.query(probe.query)
+                    await _store_cached_response(
+                        deps.response_cache,
+                        org_id=str(payload.organization_id),
+                        provider=provider_name,
+                        prompt=probe.query,
+                        response=response,
+                    )
             except ProviderError as err:
                 rows_failed += 1
                 log.warning(
@@ -275,6 +330,13 @@ async def process_scan_job(payload: ScanJobPayload, deps: HandlerDeps) -> Handle
                     error=repr(err),
                 )
                 continue
+
+            if cache_hit:
+                log.debug(
+                    "scan.provider.cache_hit",
+                    provider=provider_name,
+                    keyword_id=str(keyword.id),
+                )
 
             parsed = parse(response, brand)
             scanned_at = response.fetched_at if response.fetched_at else datetime.now(UTC)
