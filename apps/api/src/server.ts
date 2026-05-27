@@ -17,6 +17,11 @@ import { metricsRoutes } from './routes/metrics.js';
 import { queueRoutes } from './routes/queues.js';
 import { scanRoutes } from './routes/scans.js';
 import { vaultRoutes } from './routes/vault.js';
+import { ensureVaultValidationSchedule } from './vault/scheduler.js';
+import {
+  startVaultValidationWorker,
+  type VaultValidationWorkerHandle,
+} from './vault/worker.js';
 
 export type BuildServerOptions = {
   /** Override logger config. Tests pass `false` to silence output. */
@@ -25,6 +30,8 @@ export type BuildServerOptions = {
   metrics?: Parameters<typeof metricsRoutes>[1];
   startMetricsWorker?: boolean;
   metricsWorker?: DailyMetricsWorkerHandle | null;
+  startVaultValidationWorker?: boolean;
+  vaultValidationWorker?: VaultValidationWorkerHandle | null;
 };
 
 export async function buildServer(options: BuildServerOptions = {}): Promise<FastifyInstance> {
@@ -38,6 +45,14 @@ export async function buildServer(options: BuildServerOptions = {}): Promise<Fas
     (options.startMetricsWorker === false
       ? null
       : startDailyMetricsWorker({
+          logger: app.log,
+        }));
+  const vaultValidationWorker =
+    options.vaultValidationWorker ??
+    (options.startVaultValidationWorker === false
+      ? null
+      : startVaultValidationWorker({
+          queues,
           logger: app.log,
         }));
 
@@ -58,6 +73,7 @@ export async function buildServer(options: BuildServerOptions = {}): Promise<Fas
 
   app.addHook('onClose', async () => {
     await metricsWorker?.close();
+    await vaultValidationWorker?.close();
     await queues.close();
   });
 
@@ -65,7 +81,7 @@ export async function buildServer(options: BuildServerOptions = {}): Promise<Fas
   await app.register(queueRoutes, { queues, prefix: '/v1' });
   await app.register(scanRoutes, { queues, prefix: '/v1' });
   await app.register(metricsRoutes, { ...options.metrics, prefix: '/v1' });
-  await app.register(vaultRoutes, { prefix: '/v1' });
+  await app.register(vaultRoutes, { queues, prefix: '/v1' });
   await app.register(bullBoardRoute, { queues });
 
   const schedule = await ensureDailyMetricsSchedule(queues);
@@ -73,6 +89,13 @@ export async function buildServer(options: BuildServerOptions = {}): Promise<Fas
     app.log.info(schedule, 'metrics-scheduler: daily aggregation scheduled');
   } else {
     app.log.info(schedule, 'metrics-scheduler: skipping schedule');
+  }
+
+  const vaultSchedule = await ensureVaultValidationSchedule(queues);
+  if (vaultSchedule.scheduled) {
+    app.log.info(vaultSchedule, 'vault-scheduler: daily key validation scheduled');
+  } else {
+    app.log.info(vaultSchedule, 'vault-scheduler: skipping schedule');
   }
 
   return app;

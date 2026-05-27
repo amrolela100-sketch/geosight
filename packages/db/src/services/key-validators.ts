@@ -9,6 +9,10 @@
 
 import type { VaultProvider } from './key-vault.js';
 
+type Fetcher = typeof globalThis.fetch;
+type FetchRequestInit = Parameters<Fetcher>[1];
+type FetchResponse = Awaited<ReturnType<Fetcher>>;
+
 export interface ValidationResult {
   readonly valid: boolean;
   /** Coarse machine-readable reason for the UI/cron to branch on. */
@@ -29,17 +33,17 @@ export interface ValidationResult {
 const DEFAULT_TIMEOUT_MS = 8_000;
 
 export interface ProbeOptions {
-  readonly fetchImpl?: typeof fetch;
+  readonly fetchImpl?: Fetcher;
   readonly timeoutMs?: number;
 }
 
 async function probe(
   url: string,
-  init: RequestInit,
+  init: FetchRequestInit,
   options: ProbeOptions,
-): Promise<Response | { error: 'timeout' | 'network' }> {
-  const fetcher = options.fetchImpl ?? fetch;
-  const controller = new AbortController();
+): Promise<FetchResponse | { error: 'timeout' | 'network' }> {
+  const fetcher = options.fetchImpl ?? globalThis.fetch;
+  const controller = new globalThis.AbortController();
   const timer = setTimeout(() => controller.abort(), options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
   try {
     return await fetcher(url, { ...init, signal: controller.signal });

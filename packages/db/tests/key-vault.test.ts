@@ -46,6 +46,24 @@ describe('KeyVaultService — crypto primitives', () => {
     expect(a.iv.equals(b.iv)).toBe(false);
   });
 
+  it('models key rotation as fresh encrypted material', () => {
+    const master = loadMasterKey(TEST_MASTER_B64);
+    const first = encryptKey(master, 'sk-old-secret');
+    const rotated = encryptKey(master, 'sk-new-secret');
+
+    expect(first.lastFour).toBe('cret');
+    expect(rotated.lastFour).toBe('cret');
+    expect(first.encrypted.equals(rotated.encrypted)).toBe(false);
+    expect(first.iv.equals(rotated.iv)).toBe(false);
+    expect(
+      decryptKey(master, {
+        encryptedKey: rotated.encrypted,
+        iv: rotated.iv,
+        authTag: rotated.authTag,
+      }),
+    ).toBe('sk-new-secret');
+  });
+
   it('fails decryption when the auth tag is tampered with', () => {
     const master = loadMasterKey(TEST_MASTER_B64);
     const material = encryptKey(master, 'sk-tamper-test');

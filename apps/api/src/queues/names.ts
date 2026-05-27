@@ -4,6 +4,7 @@ export const queueNames = [
   'report:generate',
   'alert:send',
   'metrics:daily',
+  'vault:validate',
   'dead-letter',
 ] as const;
 

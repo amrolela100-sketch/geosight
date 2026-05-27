@@ -6,7 +6,15 @@ import { buildServer } from '../src/server.js';
 function disabledQueues(): QueueRegistry {
   return {
     enabled: false,
-    names: ['scan:scheduled', 'scan:manual', 'report:generate', 'alert:send', 'metrics:daily', 'dead-letter'],
+    names: [
+      'scan:scheduled',
+      'scan:manual',
+      'report:generate',
+      'alert:send',
+      'metrics:daily',
+      'vault:validate',
+      'dead-letter',
+    ],
     get: () => null,
     close: async () => undefined,
   };

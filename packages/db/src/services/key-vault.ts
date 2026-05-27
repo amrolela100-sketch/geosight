@@ -12,12 +12,13 @@
  * `withClerkAuth(...)` so RLS scopes reads/writes to the active org.
  */
 
-import { and, eq } from 'drizzle-orm';
 import crypto from 'node:crypto';
 
+import { and, eq } from 'drizzle-orm';
+
 import type { DbTransaction } from '../client.js';
-import { apiKeysVault } from '../schema/vault.js';
 import { auditLogs, type NewAuditLog } from '../schema/audit.js';
+import { apiKeysVault } from '../schema/vault.js';
 
 const ALGORITHM = 'aes-256-gcm';
 const IV_BYTES = 12;
@@ -133,6 +134,12 @@ export interface StoredKeySummary {
   readonly createdAt: Date;
 }
 
+export interface RotateStoredKeyInput {
+  readonly provider: VaultProvider;
+  readonly plaintext: string;
+  readonly label?: string | null;
+}
+
 export class KeyVaultService {
   constructor(private readonly master: VaultMasterKey) {}
 
@@ -223,6 +230,44 @@ export class KeyVaultService {
     });
 
     return true;
+  }
+
+  /** Replace a stored key for the same provider and record a rotation audit. */
+  async rotateKey(
+    tx: DbTransaction,
+    actor: VaultActor,
+    input: RotateStoredKeyInput,
+  ): Promise<StoredKeySummary> {
+    const existing = await tx.query.apiKeysVault.findFirst({
+      where: and(eq(apiKeysVault.orgId, actor.orgId), eq(apiKeysVault.provider, input.provider)),
+    });
+    if (!existing) return this.storeKey(tx, actor, input);
+
+    const material = encryptKey(this.master, input.plaintext);
+    const [row] = await tx
+      .update(apiKeysVault)
+      .set({
+        encryptedKey: material.encrypted,
+        iv: material.iv,
+        authTag: material.authTag,
+        lastFour: material.lastFour,
+        label: input.label ?? existing.label,
+        isValid: true,
+        lastValidatedAt: null,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(apiKeysVault.orgId, actor.orgId), eq(apiKeysVault.provider, input.provider)))
+      .returning();
+
+    if (!row) throw new Error('vault: rotate returned no row');
+
+    await writeAudit(tx, actor, 'vault.key.rotated', row.id, {
+      provider: input.provider,
+      previousLastFour: existing.lastFour,
+      lastFour: material.lastFour,
+    });
+
+    return summary(row);
   }
 
   /** Update is_valid + last_validated_at after an external probe. */

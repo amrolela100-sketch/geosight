@@ -79,6 +79,10 @@ export async function storeKeyAction(
   try {
     const vault = getKeyVaultService();
     const ctx = await getCurrentClerkContext();
+    const actor = {
+      orgId: ctx.claims.org_id!,
+      actorClerkUserId: ctx.claims.user_id,
+    };
 
     // Validate the key before storing, so users don't save bad keys silently.
     const probe = await validateKey(parsed.data.provider, parsed.data.apiKey);
@@ -89,30 +93,25 @@ export async function storeKeyAction(
       };
     }
 
-    await withClerkRequest((tx) =>
-      vault.storeKey(
-        tx,
-        {
-          orgId: ctx.claims.org_id!,
-          actorClerkUserId: ctx.claims.user_id,
-        },
-        {
-          provider: parsed.data.provider,
-          plaintext: parsed.data.apiKey,
-          label: parsed.data.label ?? null,
-        },
-      ),
-    );
+    await withClerkRequest(async (tx) => {
+      const existing = await vault.listKeys(tx, actor);
+      const input = {
+        provider: parsed.data.provider,
+        plaintext: parsed.data.apiKey,
+        label: parsed.data.label ?? null,
+      };
+      if (existing.some((key) => key.provider === parsed.data.provider)) {
+        return vault.rotateKey(tx, actor, input);
+      }
+      return vault.storeKey(tx, actor, input);
+    });
 
     // Mark as validated so the UI shows the green check immediately without
     // waiting for the daily cron.
     await withClerkRequest((tx) =>
       vault.markValidated(
         tx,
-        {
-          orgId: ctx.claims.org_id!,
-          actorClerkUserId: ctx.claims.user_id,
-        },
+        actor,
         parsed.data.provider,
         true,
         'inline-validated-on-store',

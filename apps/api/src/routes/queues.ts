@@ -7,10 +7,12 @@ import {
   dailyMetricsJobSchema,
   reportJobSchema,
   scanJobSchema,
+  vaultValidationJobSchema,
   type AlertJobPayload,
   type DailyMetricsJobPayload,
   type ReportJobPayload,
   type ScanJobPayload,
+  type VaultValidationJobPayload,
 } from '../queues/payloads.js';
 import type { QueueRegistry } from '../queues/registry.js';
 
@@ -23,6 +25,7 @@ type JobPayload =
   | ReportJobPayload
   | AlertJobPayload
   | DailyMetricsJobPayload
+  | VaultValidationJobPayload
   | {
       failedQueue: QueueName;
       failedJobId?: string;
@@ -39,6 +42,7 @@ function schemaForQueue(name: QueueName) {
   if (name === 'report:generate') return reportJobSchema;
   if (name === 'alert:send') return alertJobSchema;
   if (name === 'metrics:daily') return dailyMetricsJobSchema;
+  if (name === 'vault:validate') return vaultValidationJobSchema;
   return z.object({
     failedQueue: z.enum(queueNames),
     failedJobId: z.string().min(1).optional(),

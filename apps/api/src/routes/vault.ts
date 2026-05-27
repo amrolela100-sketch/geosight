@@ -1,29 +1,15 @@
 /**
- * Vault routes — BYOK key operations gated by internal/admin tokens.
+ * Vault routes: internal BYOK decryption plus admin validation.
  *
- * Two surfaces:
- *
- * 1. Internal (`/v1/internal/vault/*`) — called by the Python scan worker
- *    to decrypt a customer key just-in-time before invoking a provider.
- *    Gated by INTERNAL_SERVICE_TOKEN. The master key never leaves this
- *    process; only the resulting plaintext crosses the wire, over TLS
- *    inside the private network.
- *
- * 2. Admin (`/v1/admin/vault/*`) — called by the daily cron to validate
- *    every stored key. Gated by ADMIN_API_TOKEN. Updates is_valid +
- *    last_validated_at + writes audit rows.
- *
- * User-facing vault management (add / list / delete) lives in apps/web as
- * Server Actions, since Clerk session resolution is already wired there
- * via `getCurrentClerkContext`. This file does NOT expose user-facing
- * mutation endpoints — that would require duplicating the Clerk handshake.
+ * User-facing vault management lives in apps/web Server Actions, where Clerk
+ * session resolution is already wired. This API file only exposes token-gated
+ * operational surfaces.
  */
 
 import {
   createDatabase,
   KeyVaultService,
   loadMasterKey,
-  validateKey,
   withClerkAuth,
   type ClerkAuthContext,
   type Database,
@@ -33,25 +19,26 @@ import type { FastifyPluginAsync, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
 import { env } from '../env.js';
+import type { QueueRegistry } from '../queues/registry.js';
+import { runVaultValidationJob, VaultValidationUnavailableError } from '../vault/validation.js';
 
 type VaultRoutesOptions = {
   db?: Database;
   sql?: SqlClient;
+  queues?: QueueRegistry;
 };
 
 const providerSchema = z.enum(['openai', 'gemini', 'perplexity']);
 
 const decryptBodySchema = z.object({
   orgId: z.string().uuid(),
-  /** Internal users.id (UUID) used as the actor for audit logging. The Python
-   * worker passes the user that scheduled the scan, or null for cron jobs. */
   actorUserId: z.string().uuid().nullable().optional().default(null),
   provider: providerSchema,
 });
 
 const validateAllBodySchema = z.object({
-  /** Optional org filter — defaults to validating every key in the system. */
   orgId: z.string().uuid().optional(),
+  enqueueAlerts: z.boolean().default(true),
 });
 
 function requireInternalToken(req: FastifyRequest): boolean {
@@ -65,12 +52,10 @@ function requireAdminToken(req: FastifyRequest): boolean {
   return req.headers['x-admin-token'] === env.ADMIN_API_TOKEN;
 }
 
-/** Build a service-role ClerkAuthContext for internal operations. RLS still
- * applies — we pin the org/user explicitly so audit rows attribute correctly. */
 function internalContext(orgId: string, actorUserId: string | null): ClerkAuthContext {
   return {
     claims: {
-      user_id: actorUserId ?? orgId, // any UUID; only used to satisfy withClerkAuth's non-empty check
+      user_id: actorUserId ?? orgId,
       org_id: orgId,
       org_role: 'owner',
     },
@@ -78,16 +63,10 @@ function internalContext(orgId: string, actorUserId: string | null): ClerkAuthCo
 }
 
 export const vaultRoutes: FastifyPluginAsync<VaultRoutesOptions> = async (app, options) => {
-  /**
-   * POST /v1/internal/vault/decrypt
-   * Body: { orgId, actorUserId?, provider }
-   * Returns: { plaintext }
-   *
-   * The Python scan worker calls this once per (org, provider) per scan run.
-   * Latency is ~10ms; provider calls take 500-2000ms, so the round-trip is
-   * negligible compared to the security benefit of centralizing decryption.
-   */
   app.post('/internal/vault/decrypt', async (req, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    reply.header('Pragma', 'no-cache');
+
     if (!requireInternalToken(req)) {
       return reply.code(401).send({ error: 'Unauthorized' });
     }
@@ -106,14 +85,11 @@ export const vaultRoutes: FastifyPluginAsync<VaultRoutesOptions> = async (app, o
       });
     }
 
-    const owned = options.db
-      ? null
-      : createDatabase({ url: env.DATABASE_URL!, max: 2 });
+    const owned = options.db ? null : createDatabase({ url: env.DATABASE_URL!, max: 2 });
     const db = options.db ?? owned!.db;
 
     try {
-      const master = loadMasterKey(env.KEY_VAULT_MASTER_KEY);
-      const vault = new KeyVaultService(master);
+      const vault = new KeyVaultService(loadMasterKey(env.KEY_VAULT_MASTER_KEY));
       const ctx = internalContext(parsed.data.orgId, parsed.data.actorUserId ?? null);
 
       const plaintext = await withClerkAuth(db, ctx, (tx) =>
@@ -121,7 +97,7 @@ export const vaultRoutes: FastifyPluginAsync<VaultRoutesOptions> = async (app, o
           tx,
           {
             orgId: parsed.data.orgId,
-            actorClerkUserId: null, // internal call — no Clerk user
+            actorClerkUserId: null,
             ipAddress: req.ip,
             userAgent: req.headers['user-agent'] ?? null,
           },
@@ -142,25 +118,9 @@ export const vaultRoutes: FastifyPluginAsync<VaultRoutesOptions> = async (app, o
     }
   });
 
-  /**
-   * POST /v1/admin/vault/validate-all
-   * Body: { orgId? }
-   * Iterates every (org, provider) tuple in api_keys_vault, runs the live
-   * validator, and updates is_valid + last_validated_at. Used by the daily
-   * cron — Phase 3 W15.
-   *
-   * NOTE: this endpoint scaffolds the cron entry-point but the full
-   * BullMQ-scheduled job + low-balance alert remain TODO (W15).
-   */
   app.post('/admin/vault/validate-all', async (req, reply) => {
     if (!requireAdminToken(req)) {
       return reply.code(401).send({ error: 'Unauthorized' });
-    }
-    if (!env.KEY_VAULT_MASTER_KEY) {
-      return reply.code(503).send({ error: 'VaultUnavailable' });
-    }
-    if (!options.db && !env.DATABASE_URL) {
-      return reply.code(503).send({ error: 'DatabaseUnavailable' });
     }
 
     const parsed = validateAllBodySchema.safeParse(req.body ?? {});
@@ -171,84 +131,24 @@ export const vaultRoutes: FastifyPluginAsync<VaultRoutesOptions> = async (app, o
       });
     }
 
-    const owned = options.db
-      ? null
-      : createDatabase({ url: env.DATABASE_URL!, max: 2 });
-    const db = options.db ?? owned!.db;
-
     try {
-      const master = loadMasterKey(env.KEY_VAULT_MASTER_KEY);
-      const vault = new KeyVaultService(master);
-
-      // Service-role read of the full vault — bypasses RLS by reading without
-      // a Clerk transaction. We trust the admin token to gate this surface.
-      const rows = await db.query.apiKeysVault.findMany({
-        where: parsed.data.orgId
-          ? (apiKeysVault, { eq }) => eq(apiKeysVault.orgId, parsed.data.orgId!)
-          : undefined,
+      const result = await runVaultValidationJob({
+        db: options.db,
+        sql: options.sql,
+        orgId: parsed.data.orgId,
+        enqueueAlerts: parsed.data.enqueueAlerts,
+        alertQueue: options.queues?.get('alert:send') ?? null,
+        ipAddress: req.ip,
+        userAgent: 'vault-validate-admin',
       });
 
-      const results: Array<{
-        orgId: string;
-        provider: string;
-        valid: boolean;
-        reason: string;
-      }> = [];
-
-      for (const row of rows) {
-        const ctx = internalContext(row.orgId, null);
-        try {
-          const plaintext = await withClerkAuth(db, ctx, (tx) =>
-            vault.getDecryptedKey(
-              tx,
-              {
-                orgId: row.orgId,
-                actorClerkUserId: null,
-                ipAddress: req.ip,
-                userAgent: 'vault-validate-cron',
-              },
-              row.provider,
-            ),
-          );
-          if (!plaintext) {
-            results.push({ orgId: row.orgId, provider: row.provider, valid: false, reason: 'missing' });
-            continue;
-          }
-          const probe = await validateKey(row.provider, plaintext);
-          await withClerkAuth(db, ctx, (tx) =>
-            vault.markValidated(
-              tx,
-              {
-                orgId: row.orgId,
-                actorClerkUserId: null,
-                ipAddress: req.ip,
-                userAgent: 'vault-validate-cron',
-              },
-              row.provider,
-              probe.valid,
-              probe.reason,
-            ),
-          );
-          results.push({
-            orgId: row.orgId,
-            provider: row.provider,
-            valid: probe.valid,
-            reason: probe.reason,
-          });
-        } catch (err) {
-          req.log.error({ err, orgId: row.orgId, provider: row.provider }, 'vault: validate failed');
-          results.push({
-            orgId: row.orgId,
-            provider: row.provider,
-            valid: false,
-            reason: 'error',
-          });
-        }
+      return reply.send({ ok: true, ...result });
+    } catch (err) {
+      if (err instanceof VaultValidationUnavailableError) {
+        return reply.code(503).send({ error: err.code });
       }
-
-      return reply.send({ ok: true, checked: results.length, results });
-    } finally {
-      if (owned) await owned.sql.end({ timeout: 5 });
+      req.log.error({ err }, 'vault: validate-all failed');
+      return reply.code(500).send({ error: 'ValidationFailed' });
     }
   });
 };

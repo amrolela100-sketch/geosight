@@ -19,8 +19,13 @@ export const reportJobSchema = z.object({
 
 export const alertJobSchema = z.object({
   organizationId: z.string().uuid(),
-  alertId: z.string().uuid(),
+  alertId: z.string().uuid().optional(),
+  kind: z.enum(['vault_key_invalid', 'vault_key_rate_limited', 'provider_low_balance']).optional(),
+  provider: z.enum(['openai', 'gemini', 'perplexity']).optional(),
   channel: z.enum(['email', 'slack']),
+  severity: z.enum(['info', 'warning', 'critical']).default('warning'),
+  message: z.string().min(1).optional(),
+  metadata: z.record(z.unknown()).optional(),
 });
 
 export const dailyMetricsJobSchema = z.object({
@@ -36,7 +41,17 @@ export const dailyMetricsJobSchema = z.object({
     .default(() => new Date().toISOString()),
 });
 
+export const vaultValidationJobSchema = z.object({
+  organizationId: z.string().uuid().optional(),
+  enqueueAlerts: z.boolean().default(true),
+  requestedAt: z
+    .string()
+    .datetime()
+    .default(() => new Date().toISOString()),
+});
+
 export type ScanJobPayload = z.infer<typeof scanJobSchema>;
 export type ReportJobPayload = z.infer<typeof reportJobSchema>;
 export type AlertJobPayload = z.infer<typeof alertJobSchema>;
 export type DailyMetricsJobPayload = z.infer<typeof dailyMetricsJobSchema>;
+export type VaultValidationJobPayload = z.infer<typeof vaultValidationJobSchema>;
