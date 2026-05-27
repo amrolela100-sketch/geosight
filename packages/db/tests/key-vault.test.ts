@@ -5,7 +5,7 @@ import {
   decryptKey,
   encryptKey,
   loadMasterKey,
-} from '../../src/services/key-vault.js';
+} from '../src/services/key-vault.js';
 
 const TEST_MASTER_B64 = crypto.randomBytes(32).toString('base64');
 

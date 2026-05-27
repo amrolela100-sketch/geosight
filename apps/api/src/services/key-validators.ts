@@ -7,7 +7,7 @@
  * the same status independent of provider quirks.
  */
 
-import type { VaultProvider } from '@geosight/shared/constants';
+import type { VaultProvider } from '@geosight/db';
 
 export interface ValidationResult {
   readonly valid: boolean;

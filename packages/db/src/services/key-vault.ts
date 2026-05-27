@@ -3,8 +3,8 @@
  *
  * Per the BYOK-from-day-one decision, GeoSight never holds plaintext provider
  * API keys at rest. Customer keys are encrypted with AES-256-GCM and stored
- * in `api_keys_vault`. The master key lives only in the api process env and
- * is rotated by redeploy.
+ * in `api_keys_vault`. The master key lives only in process env (api +
+ * Next.js server-only) and is rotated by redeploy.
  *
  * Every operation that touches a key (encrypt, decrypt, delete, validate)
  * MUST write an `audit_logs` row inside the same transaction so we can never
@@ -12,20 +12,18 @@
  * `withClerkAuth(...)` so RLS scopes reads/writes to the active org.
  */
 
-import {
-  apiKeysVault,
-  auditLogs,
-  and,
-  eq,
-  type DbTransaction,
-  type NewAuditLog,
-} from '@geosight/db';
-import type { VaultProvider } from '@geosight/shared/constants';
+import { and, eq } from 'drizzle-orm';
 import crypto from 'node:crypto';
+
+import type { DbTransaction } from '../client.js';
+import { apiKeysVault } from '../schema/vault.js';
+import { auditLogs, type NewAuditLog } from '../schema/audit.js';
 
 const ALGORITHM = 'aes-256-gcm';
 const IV_BYTES = 12;
 const KEY_BYTES = 32;
+
+export type VaultProvider = 'openai' | 'gemini' | 'perplexity';
 
 /** Opaque handle around the 32-byte master key. The Buffer is never logged. */
 export interface VaultMasterKey {

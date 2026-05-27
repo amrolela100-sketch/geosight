@@ -23,6 +23,10 @@ const apiEnvSchema = z.object({
    * service throws on first use when unset. Generate with
    * `openssl rand -base64 32`. NEVER commit; rotate via env redeploy. */
   KEY_VAULT_MASTER_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
+  /** Shared secret between the api and internal services (Python scan worker,
+   * validation cron). Gates `/v1/internal/*` routes. When unset, those routes
+   * are disabled (404) — safer default than open access. */
+  INTERNAL_SERVICE_TOKEN: z.preprocess(emptyToUndefined, z.string().min(16).optional()),
 });
 
 const parsed = apiEnvSchema.safeParse(process.env);

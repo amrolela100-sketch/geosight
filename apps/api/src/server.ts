@@ -16,6 +16,7 @@ import { healthRoutes } from './routes/health.js';
 import { metricsRoutes } from './routes/metrics.js';
 import { queueRoutes } from './routes/queues.js';
 import { scanRoutes } from './routes/scans.js';
+import { vaultRoutes } from './routes/vault.js';
 
 export type BuildServerOptions = {
   /** Override logger config. Tests pass `false` to silence output. */
@@ -64,6 +65,7 @@ export async function buildServer(options: BuildServerOptions = {}): Promise<Fas
   await app.register(queueRoutes, { queues, prefix: '/v1' });
   await app.register(scanRoutes, { queues, prefix: '/v1' });
   await app.register(metricsRoutes, { ...options.metrics, prefix: '/v1' });
+  await app.register(vaultRoutes, { prefix: '/v1' });
   await app.register(bullBoardRoute, { queues });
 
   const schedule = await ensureDailyMetricsSchedule(queues);
