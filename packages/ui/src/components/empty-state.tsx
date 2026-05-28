@@ -1,9 +1,9 @@
-import { type ComponentType, type ReactNode } from 'react';
+import { type ComponentType, type ReactNode, type SVGProps } from 'react';
 
 import { cn } from '../lib/cn';
 
 export interface EmptyStateProps {
-  icon?: ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
+  icon?: ComponentType<SVGProps<SVGSVGElement>>;
   title: ReactNode;
   description?: ReactNode;
   action?: ReactNode;

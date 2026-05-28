@@ -63,28 +63,39 @@
       "addBrand": "Add brand",
       "addKeyword": "Add keyword"
     },
-    "metrics": {
-      "brands": { "label": "Brands", "hint": "Add your first brand to get started" },
-      "keywords": { "label": "Tracked keywords", "hint": "Add keywords to start tracking" },
-      "scans": { "label": "Completed scans", "hint": "No scans run yet" }
+    "hero": {
+      "scoreLabel": "GEO Score"
     },
-    "readiness": {
-      "title": "Phase 1 readiness",
-      "subtitle": "This path confirms signed-in users land inside a real product surface using the new design system.",
-      "ready": "ready",
-      "items": {
-        "providers": "Core providers are visible inside the product experience",
-        "parser": "Arabic analysis flow is reserved for Phase 2",
-        "dashboard": "Dashboard shell works and reads current data"
-      }
+    "kpi": {
+      "delta14d": "vs prior 14d",
+      "geoScore": { "label": "Average GEO Score", "hint": "14-day average across all providers." },
+      "shareOfVoice": { "label": "Share of voice", "hint": "Your brand's mentions vs competitors." },
+      "mentions": { "label": "Brand mentions", "hint": "Scans where your brand was mentioned." },
+      "scans": { "label": "Completed scans", "hint": "Total scans run in the last 14 days." }
     },
-    "next": {
-      "title": "Next step",
-      "subtitle": "After the landing and dashboard shell are closed, we move into the GEO engine.",
-      "first": "Phase 2 / Week 7: API + Queue System",
-      "firstHint": "Fastify, Zod, Redis/BullMQ, and the first manual scan/status route."
+    "inventory": {
+      "brands": { "label": "Brands", "hint": "Add your first brand to get started." },
+      "keywords": { "label": "Keywords", "hint": "Add the questions you want to track." },
+      "activeKeywords": { "label": "Active keywords", "hint": "Scanned on their configured schedule." }
     },
-    "emptyState": "Start by adding your first brand and keywords.",
+    "trend": {
+      "title": "GEO Score trend",
+      "subtitle": "14-day average, sourced from daily scan rollups.",
+      "scoreLabel": "GEO Score",
+      "scansLabel": "Scans",
+      "empty": "No scan data yet — run your first scan to see the trend."
+    },
+    "providers": {
+      "title": "Provider breakdown",
+      "subtitle": "Scans and mentions for each AI provider.",
+      "scansLabel": "Scans",
+      "mentionsLabel": "Mentions",
+      "empty": "No scans yet."
+    },
+    "empty": {
+      "title": "Add your first brand to get started",
+      "subtitle": "Add a brand, then keywords, and we'll show your AI visibility performance here."
+    },
     "nav": {
       "overview": "Overview",
       "brands": "Brands",
