@@ -2,7 +2,7 @@
   "name": "@geosight/ui",
   "version": "0.0.0",
   "private": true,
-  "description": "GeoSight component library — shadcn/ui primitives + GeoSight design tokens, RTL-aware.",
+  "description": "GeoSight component library — design tokens, glass surfaces, RTL-safe primitives.",
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
@@ -11,11 +11,40 @@
     "./styles.css": "./src/styles.css"
   },
   "scripts": {
-    "dev": "echo \"@geosight/ui: not yet scaffolded (Phase 4 / Week 16)\" && exit 0",
-    "build": "echo \"@geosight/ui: not yet scaffolded\" && exit 0",
-    "lint": "echo \"@geosight/ui: not yet scaffolded\" && exit 0",
-    "typecheck": "echo \"@geosight/ui: not yet scaffolded\" && exit 0",
-    "test": "echo \"@geosight/ui: not yet scaffolded\" && exit 0",
-    "clean": "rimraf dist .turbo node_modules"
+    "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint src --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rimraf dist .turbo"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.1.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.2"
+  },
+  "peerDependencies": {
+    "lucide-react": "^0.445.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@geosight/config": "workspace:*",
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.1",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitest/coverage-v8": "^2.1.8",
+    "eslint": "^9.10.0",
+    "globals": "^15.9.0",
+    "jsdom": "^25.0.1",
+    "lucide-react": "^0.445.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.5.4",
+    "vitest": "^2.1.8"
   }
 }
