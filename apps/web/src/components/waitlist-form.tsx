@@ -50,7 +50,7 @@ export function WaitlistForm() {
 
   if (status === 'success') {
     return (
-      <div className="glass gemini-border shadow-soft flex w-full max-w-xl flex-col items-center gap-3 rounded-[28px] p-7 text-center">
+      <div className="border-border bg-card text-card-foreground shadow-paper flex w-full max-w-xl flex-col items-center gap-3 border p-7 text-center">
         <div className="bg-primary/20 text-primary flex h-12 w-12 items-center justify-center rounded-full text-lg">
           +
         </div>
@@ -63,7 +63,7 @@ export function WaitlistForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="glass gemini-border shadow-soft flex w-full max-w-xl flex-col gap-5 rounded-[32px] p-6 text-start md:p-7"
+      className="border-border bg-card text-card-foreground shadow-paper flex w-full max-w-xl flex-col gap-5 border p-6 text-start md:p-7"
       noValidate
     >
       <div className="flex flex-col gap-1">
@@ -80,7 +80,7 @@ export function WaitlistForm() {
             minLength={2}
             maxLength={120}
             autoComplete="name"
-            className="bg-background/60 focus:border-primary focus:ring-primary rounded-2xl border border-white/10 px-4 py-3 text-sm outline-none transition focus:ring-1"
+            className="bg-background/60 border-border focus:border-primary focus:ring-primary border px-4 py-3 text-sm outline-none transition focus:ring-1"
           />
         </label>
 
@@ -91,7 +91,7 @@ export function WaitlistForm() {
             type="email"
             required
             autoComplete="email"
-            className="bg-background/60 focus:border-primary focus:ring-primary rounded-2xl border border-white/10 px-4 py-3 text-sm outline-none transition focus:ring-1"
+            className="bg-background/60 border-border focus:border-primary focus:ring-primary border px-4 py-3 text-sm outline-none transition focus:ring-1"
           />
         </label>
       </div>
@@ -102,7 +102,7 @@ export function WaitlistForm() {
           name="company"
           maxLength={160}
           autoComplete="organization"
-          className="bg-background/60 focus:border-primary focus:ring-primary rounded-2xl border border-white/10 px-4 py-3 text-sm outline-none transition focus:ring-1"
+          className="bg-background/60 border-border focus:border-primary focus:ring-primary border px-4 py-3 text-sm outline-none transition focus:ring-1"
         />
       </label>
 
@@ -116,8 +116,8 @@ export function WaitlistForm() {
         type="submit"
         disabled={status === 'submitting'}
         className={cn(
-          'shadow-glow bg-primary text-primary-foreground mt-1 rounded-full px-6 py-3 text-sm font-medium transition',
-          status === 'submitting' ? 'opacity-60' : 'hover:-translate-y-0.5 hover:opacity-95',
+          'bg-primary text-primary-foreground mt-1 px-6 py-3 text-sm font-medium uppercase tracking-[0.18em] transition',
+          status === 'submitting' ? 'opacity-60' : 'hover:opacity-95',
         )}
       >
         {status === 'submitting' ? t('submitting') : t('submit')}

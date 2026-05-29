@@ -1,163 +1,346 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
+import {
+  EditorialEyebrow,
+  Masthead,
+  RailText,
+  SectionMarker,
+  cn,
+} from '@geosight/ui';
+
 import { WaitlistForm } from '@/components/waitlist-form';
 
 const providers = ['ChatGPT', 'Gemini', 'Perplexity'] as const;
-const statKeys = ['score', 'dialects', 'mentions'] as const;
 const phaseKeys = ['prompt', 'dialect', 'brand', 'scoring'] as const;
+const capabilityKeys = [0, 1, 2, 3] as const;
+const labKeys = [0, 1, 2, 3, 4] as const;
+const methodKeys = [0, 1, 2, 3] as const;
+const tickerKeys = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 
 export default function LandingPage() {
   const t = useTranslations('Landing.hero');
   const tDemo = useTranslations('Landing.demo');
   const tStats = useTranslations('Landing.stats');
   const tSim = useTranslations('Landing.simulation');
+  const tEd = useTranslations('Editorial');
   const common = useTranslations('Common');
+  const year = new Date().getFullYear();
 
   return (
-    <main className="relative min-h-screen overflow-hidden pb-20">
-      <div
-        aria-hidden
-        className="hero-grid pointer-events-none absolute inset-0 -z-20 opacity-50"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[520px] bg-[radial-gradient(50%_52%_at_50%_0%,rgb(66_133_244_/_0.25),transparent_72%)]"
-      />
-      <div
-        aria-hidden
-        className="sparkle-dot left-[10%] top-24 h-2 w-2"
-        style={{ animationDelay: '0s' }}
-      />
-      <div
-        aria-hidden
-        className="sparkle-dot right-[14%] top-40 h-1.5 w-1.5"
-        style={{ animationDelay: '1.5s' }}
-      />
-      <div
-        aria-hidden
-        className="sparkle-dot bottom-[28%] left-[18%] h-1.5 w-1.5"
-        style={{ animationDelay: '3s' }}
-      />
-
-      <header className="container flex items-center justify-between py-7">
-        <div className="flex items-center gap-3">
-          <div className="gemini-border glass flex h-11 w-11 items-center justify-center rounded-2xl text-sm font-semibold text-white">
-            GS
-          </div>
-          <div>
-            <p className="font-arabic text-base font-semibold text-white">{common('appName')}</p>
-            <p className="text-muted-foreground text-xs">{common('tagline')}</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="hidden items-center gap-2 md:flex">
-            {providers.map((provider) => (
-              <span
-                key={provider}
-                className="text-muted-foreground rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs"
-              >
-                {provider}
-              </span>
-            ))}
-          </div>
+    <div className="theme-paper relative min-h-screen overflow-hidden">
+      {/* Sticky masthead — two thin rules, then a heavy serif title row */}
+      <header className="bg-paper sticky top-0 z-30 border-b border-[var(--ink)]">
+        <Masthead
+          volume={tEd('masthead.volume')}
+          issue={tEd('masthead.issue')}
+          status={
+            <EditorialEyebrow tone="coral" data-reveal>
+              {tEd('masthead.live')}
+            </EditorialEyebrow>
+          }
+          middle={tEd('masthead.license')}
+        />
+        <div className="container flex items-center justify-between gap-6 py-3">
           <Link
-            href="/sign-in"
-            className="glass rounded-full px-4 py-2 text-sm text-white transition hover:bg-white/10"
+            href="/"
+            className="display-serif flex items-baseline gap-2 text-2xl"
+            aria-label={common('appName')}
           >
-            {t('signIn')}
+            <span>GeoSight</span>
+            <span className="meta-mono">— {common('tagline')}</span>
           </Link>
+          <nav className="hidden items-center gap-7 md:flex">
+            {(['about', 'capabilities', 'method', 'lab', 'contact'] as const).map((key) => (
+              <a
+                key={key}
+                href={`#${key}`}
+                className="eyebrow-track hover:text-[var(--coral)] transition"
+              >
+                {tEd(`sections.${key}`)}
+              </a>
+            ))}
+            <Link
+              href="/sign-in"
+              className="border-ink bg-ink text-paper border px-4 py-2 text-xs uppercase tracking-[0.18em] transition hover:bg-[var(--coral)] hover:border-[var(--coral)]"
+            >
+              {t('signIn')}
+            </Link>
+          </nav>
         </div>
       </header>
 
-      <section className="container grid gap-12 py-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:py-20">
-        <div className="flex flex-col gap-7">
-          <span className="gemini-border inline-flex w-fit rounded-full px-4 py-1.5 text-xs font-medium text-white/80">
-            {t('eyebrow')}
-          </span>
+      {/* Vertical rails — decorative metadata on the page edges */}
+      <RailText side="left">{tEd('rail.left')}</RailText>
+      <RailText side="right">{tEd('rail.right')}</RailText>
 
-          <div className="space-y-5">
-            <h1 className="max-w-4xl text-4xl font-semibold leading-[1.05] text-white sm:text-5xl lg:text-7xl">
-              <span className="text-gradient-gemini">{t('title')}</span>
-            </h1>
-            <p className="max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-              {t('subtitle')}
-            </p>
-          </div>
+      <main>
+        {/* Hero — masthead-style title with stat sidebar */}
+        <section className="container relative pt-12 pb-16 md:pt-20 md:pb-24">
+          <div className="grid gap-10 lg:grid-cols-[1.5fr_1fr] lg:gap-16">
+            <div className="hero-copy flex flex-col gap-7">
+              <EditorialEyebrow tone="coral" data-reveal>
+                {t('eyebrow')}
+              </EditorialEyebrow>
+              <h1
+                className="display-serif text-[44px] leading-[1.04] sm:text-6xl lg:text-7xl"
+                data-reveal
+              >
+                {tEd('about.title')}
+              </h1>
+              <p
+                className="max-w-xl text-base leading-7 text-[var(--ink-soft)] md:text-lg md:leading-8"
+                data-reveal
+              >
+                {tEd('about.lede')}
+              </p>
 
-          <div className="glass gemini-border flex max-w-2xl flex-wrap items-center gap-3 rounded-[30px] px-4 py-4 sm:px-5">
-            <div className="min-w-0 flex-1">
-              <p className="text-xs uppercase text-slate-400">{tDemo('label')}</p>
-              <p className="mt-1 truncate text-sm text-white/90">{tDemo('queryExample')}</p>
-            </div>
-            <button className="shadow-glow bg-primary text-primary-foreground rounded-full px-5 py-2.5 text-sm font-medium transition hover:-translate-y-0.5">
-              {t('ctaPrimary')}
-            </button>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-3">
-            {statKeys.map((key) => (
-              <div key={key} className="glass rounded-[24px] p-4">
-                <p className="text-xs uppercase text-slate-400">{tStats(`${key}.label`)}</p>
-                <p className="mt-3 text-3xl font-semibold text-white">{tStats(`${key}.value`)}</p>
-                <p className="mt-1 text-sm text-slate-300">{tStats(`${key}.note`)}</p>
+              <div className="flex flex-wrap items-center gap-4" data-reveal>
+                <Link
+                  href="#contact"
+                  className="bg-coral text-paper px-6 py-3 text-xs uppercase tracking-[0.18em] transition hover:bg-[var(--coral-soft)]"
+                >
+                  {t('ctaPrimary')}
+                </Link>
+                <a
+                  href="#method"
+                  className="border-ink text-ink hover:bg-ink hover:text-paper border px-6 py-3 text-xs uppercase tracking-[0.18em] transition"
+                >
+                  {t('ctaSecondary')}
+                </a>
               </div>
-            ))}
-          </div>
-        </div>
 
-        <div className="relative">
-          <div className="mesh-panel glass shadow-soft rounded-[36px] p-5 sm:p-6">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-medium text-white">{tSim('title')}</p>
-                <p className="mt-1 text-sm text-slate-300">{tSim('subtitle')}</p>
-              </div>
-              <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-3 py-1 text-xs text-emerald-200">
-                {tSim('live')}
-              </span>
-            </div>
-
-            <div className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-              <div className="flex flex-col items-center justify-center gap-4">
-                <div className="orb-surface shadow-glow flex aspect-square w-44 items-center justify-center">
-                  <div className="text-center">
-                    <p className="text-xs uppercase text-white/70">{tSim('orbLabel')}</p>
-                    <p className="mt-2 text-5xl font-semibold text-white">
-                      {tStats('score.value')}
-                    </p>
+              <dl className="mt-2 grid grid-cols-3 gap-6 border-t border-[var(--line)] pt-6" data-reveal>
+                {(['score', 'dialects', 'mentions'] as const).map((key) => (
+                  <div key={key} className="flex flex-col gap-1.5">
+                    <dt className="eyebrow-track">{tStats(`${key}.label`)}</dt>
+                    <dd className="display-serif text-4xl">{tStats(`${key}.value`)}</dd>
+                    <dd className="meta-mono">{tStats(`${key}.note`)}</dd>
                   </div>
-                </div>
-                <div className="grid w-full grid-cols-3 gap-2 text-center text-xs">
-                  <div className="rounded-2xl bg-white/5 px-3 py-2 text-slate-300">GPT</div>
-                  <div className="rounded-2xl bg-white/5 px-3 py-2 text-slate-300">Gemini</div>
-                  <div className="rounded-2xl bg-white/5 px-3 py-2 text-slate-300">PPX</div>
-                </div>
-              </div>
+                ))}
+              </dl>
+            </div>
 
-              <div className="space-y-4">
-                {phaseKeys.map((phase, index) => (
-                  <div key={phase} className="glass rounded-[24px] p-4">
-                    <div className="flex items-center justify-between gap-4">
-                      <div>
-                        <p className="text-sm font-medium text-white">{tSim(`phases.${phase}`)}</p>
-                        <p className="mt-1 text-xs text-slate-400">{tSim('phaseNote')}</p>
-                      </div>
-                      <span className="text-sm font-semibold text-slate-300">0{index + 1}</span>
-                    </div>
-                    <div className="shimmer-bar mt-4 h-2 rounded-full" />
+            {/* Right column — provider strip + sample-query card */}
+            <aside className="flex flex-col gap-6" data-reveal>
+              <div className="surface-bone p-6">
+                <p className="eyebrow-track mb-3">{tDemo('label')}</p>
+                <p className="display-serif text-xl leading-snug">
+                  &laquo; {tDemo('queryExample')} &raquo;
+                </p>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {providers.map((p) => (
+                  <div
+                    key={p}
+                    className="border-ink/20 surface-paper-warm flex items-center justify-center border p-3"
+                  >
+                    <span className="meta-mono text-ink">{p}</span>
                   </div>
                 ))}
               </div>
+              <div className="surface-bone p-6">
+                <p className="eyebrow-track mb-2">{tSim('orbLabel')}</p>
+                <p className="display-serif text-6xl leading-none">{tStats('score.value')}</p>
+                <p className="meta-mono mt-2">{tSim('phaseNote')}</p>
+              </div>
+            </aside>
+          </div>
+
+          {/* "From the field" coordinates ticker */}
+          <div className="mt-14 overflow-hidden border-y border-[var(--line)] py-3">
+            <div className="ticker-track">
+              {[...tickerKeys, ...tickerKeys].map((i, idx) => (
+                <span key={`${i}-${idx}`} className="meta-mono whitespace-nowrap">
+                  {tEd(`ticker.${i}`)}
+                </span>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="container mt-8 flex justify-center">
-        <WaitlistForm />
-      </section>
-    </main>
+        {/* I. Manifesto */}
+        <section id="about" className="container py-16 md:py-20">
+          <SectionMarker
+            index={1}
+            label={tEd('sections.about')}
+            pagination={{ current: 1, total: 7 }}
+          />
+          <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_1.5fr]">
+            <h2 className="display-serif text-3xl md:text-4xl" data-reveal>
+              {tEd('about.title')}
+            </h2>
+            <p
+              className="text-lg leading-8 text-[var(--ink-soft)] md:text-xl md:leading-9"
+              data-reveal
+            >
+              {tEd('about.manifesto')}
+            </p>
+          </div>
+        </section>
+
+        {/* II. Capabilities */}
+        <section id="capabilities" className="container py-16 md:py-20">
+          <SectionMarker
+            index={2}
+            label={tEd('sections.capabilities')}
+            pagination={{ current: 2, total: 7 }}
+          />
+          <h2 className="display-serif mt-10 text-3xl md:text-4xl" data-reveal>
+            {tEd('capabilities.title')}
+          </h2>
+          <div className="mt-10 grid gap-px bg-[var(--line)] md:grid-cols-2">
+            {capabilityKeys.map((i) => (
+              <article
+                key={i}
+                className="bg-paper flex flex-col gap-3 p-7 transition hover:bg-[var(--bone)]"
+                data-reveal
+              >
+                <div className="flex items-baseline gap-3">
+                  <span className="display-serif text-coral text-3xl leading-none">
+                    {tEd(`capabilities.items.${i}.tag`)}
+                  </span>
+                  <h3 className="display-serif text-2xl">
+                    {tEd(`capabilities.items.${i}.name`)}
+                  </h3>
+                </div>
+                <p className="text-base leading-7 text-[var(--ink-soft)]">
+                  {tEd(`capabilities.items.${i}.body`)}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* III. Method — the loop */}
+        <section id="method" className="container py-16 md:py-20">
+          <SectionMarker
+            index={3}
+            label={tEd('sections.method')}
+            pagination={{ current: 3, total: 7 }}
+          />
+          <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_2fr]">
+            <div className="flex flex-col gap-3">
+              <h2 className="display-serif text-3xl md:text-4xl" data-reveal>
+                {tEd('method.title')}
+              </h2>
+              <p className="meta-mono" data-reveal>
+                {tEd('method.subtitle')}
+              </p>
+            </div>
+            <ol className="grid gap-px bg-[var(--line)] sm:grid-cols-2 lg:grid-cols-4">
+              {methodKeys.map((i) => (
+                <li
+                  key={i}
+                  className="bg-paper flex flex-col gap-3 p-6"
+                  data-reveal
+                >
+                  <span className="meta-mono text-coral">
+                    {tEd(`method.steps.${i}.tag`)} / {phaseKeys[i]}
+                  </span>
+                  <h3 className="display-serif text-xl">
+                    {tEd(`method.steps.${i}.name`)}
+                  </h3>
+                  <p className="text-sm leading-6 text-[var(--ink-soft)]">
+                    {tEd(`method.steps.${i}.body`)}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        {/* IV. Lab */}
+        <section id="lab" className="container py-16 md:py-20">
+          <SectionMarker
+            index={4}
+            label={tEd('sections.lab')}
+            pagination={{ current: 4, total: 7 }}
+          />
+          <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_2fr]">
+            <div className="flex flex-col gap-3">
+              <h2 className="display-serif text-3xl md:text-4xl" data-reveal>
+                {tEd('lab.title')}
+              </h2>
+              <p className="meta-mono" data-reveal>
+                {tEd('lab.subtitle')}
+              </p>
+            </div>
+            <ul className="flex flex-col">
+              {labKeys.map((i) => (
+                <li
+                  key={i}
+                  className={cn(
+                    'flex flex-col gap-2 border-t border-[var(--line)] py-5 sm:flex-row sm:items-baseline sm:gap-6',
+                    i === labKeys.length - 1 && 'border-b',
+                  )}
+                  data-reveal
+                >
+                  <span className="meta-mono w-16 shrink-0">
+                    {tEd(`lab.items.${i}.tag`)}
+                  </span>
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-baseline gap-3">
+                      <h3 className="display-serif text-xl">
+                        {tEd(`lab.items.${i}.name`)}
+                      </h3>
+                      <span className="eyebrow-track eyebrow-track--coral">
+                        {tEd(`lab.items.${i}.status`)}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-sm leading-6 text-[var(--ink-soft)]">
+                      {tEd(`lab.items.${i}.body`)}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* V. Contact */}
+        <section id="contact" className="container py-16 md:py-24">
+          <SectionMarker
+            index={7}
+            label={tEd('sections.contact')}
+            pagination={{ current: 7, total: 7 }}
+          />
+          <div className="mt-12 grid gap-10 lg:grid-cols-[1fr_1fr] lg:items-start">
+            <div className="flex flex-col gap-6">
+              <h2 className="display-serif text-4xl md:text-5xl" data-reveal>
+                {tEd('contact.title')}
+              </h2>
+              <p
+                className="text-lg leading-8 text-[var(--ink-soft)]"
+                data-reveal
+              >
+                {tEd('contact.subtitle')}
+              </p>
+            </div>
+            <div className="flex justify-start lg:justify-end" data-reveal>
+              <WaitlistForm />
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-[var(--ink)]">
+        <div className="container flex flex-col gap-4 py-8 sm:flex-row sm:items-center sm:justify-between">
+          <p className="meta-mono">{tEd('footer.rights', { year })}</p>
+          <nav className="flex flex-wrap gap-5">
+            {(['privacy', 'terms', 'docs'] as const).map((key) => (
+              <a
+                key={key}
+                href={`/${key}`}
+                className="eyebrow-track hover:text-[var(--coral)] transition"
+              >
+                {tEd(`footer.${key}`)}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </footer>
+    </div>
   );
 }

@@ -1,6 +1,10 @@
 /* GeoSight design system — tokens + utilities.
  * Owned by @geosight/ui, imported once by apps/web/src/app/globals.css.
- * Dark-first, RTL-ready, Gemini-inspired palette. */
+ * Two themes coexist:
+ *   - default (dark Gemini-inspired): used by app shell, dashboard, auth.
+ *   - .theme-paper (warm parchment editorial): used by landing/marketing surfaces.
+ *     Tokens for .theme-paper are concrete (not HSL-channel) because the
+ *     parchment palette is brand-fixed and not user-themable. */
 
 @layer base {
   :root {
@@ -68,6 +72,59 @@
     --border: 232 18% 22%;
     --input: 232 18% 22%;
     --ring: 217 89% 61%;
+  }
+
+  /* Editorial paper theme — applied to a wrapper element on landing/marketing.
+   * Overrides the dark Gemini tokens so the rest of the design system (Card,
+   * Button, Badge) renders in warm parchment automatically. */
+  .theme-paper {
+    color-scheme: light;
+
+    --paper: #efe7d2;
+    --paper-warm: #ece4cf;
+    --paper-dark: #ddd2b6;
+    --bone: #f7f1de;
+    --ink: #15140f;
+    --ink-soft: #2a2620;
+    --ink-mute: #5a5448;
+    --ink-faint: #8b8676;
+    --coral: #ed6f5c;
+    --coral-soft: #f08e7c;
+    --line: rgba(21, 20, 15, 0.16);
+    --line-soft: rgba(21, 20, 15, 0.08);
+    --line-faint: rgba(21, 20, 15, 0.05);
+
+    /* Remap shared tokens so existing components inherit. Stored as HSL
+     * channels because the rest of the system reads them via hsl(var(--x)). */
+    --background: 44 45% 88%; /* paper */
+    --foreground: 48 17% 7%; /* ink */
+    --card: 47 56% 92%; /* bone */
+    --card-foreground: 48 17% 7%;
+    --popover: 44 45% 88%;
+    --popover-foreground: 48 17% 7%;
+    --primary: 8 81% 65%; /* coral */
+    --primary-foreground: 47 56% 96%;
+    --secondary: 44 36% 78%; /* paper-dark */
+    --secondary-foreground: 48 17% 7%;
+    --muted: 44 36% 82%;
+    --muted-foreground: 41 12% 32%; /* ink-mute */
+    --accent: 8 81% 65%;
+    --accent-foreground: 47 56% 96%;
+    --destructive: 0 64% 48%;
+    --destructive-foreground: 47 56% 96%;
+    --border: 48 17% 18%;
+    --input: 48 17% 18%;
+    --ring: 8 81% 65%;
+    --radius: 0.125rem;
+
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body, var(--font-sans, system-ui)), serif;
+  }
+
+  .theme-paper [lang='ar'],
+  [lang='ar'] .theme-paper {
+    font-family: var(--font-arabic-serif, var(--font-arabic, serif)), serif;
   }
 }
 
@@ -233,6 +290,115 @@
     50% {
       opacity: 0.9;
       transform: translate3d(0, -12px, 0) scale(1.18);
+    }
+  }
+}
+
+/* Editorial / paper-theme utilities. Scoped under .theme-paper so they don't
+ * leak into the dark dashboard. Names mirror open-design.ai's kami system
+ * conventions for easy mental mapping. */
+@layer utilities {
+  .theme-paper .editorial-divider {
+    height: 1px;
+    background: var(--line);
+    border: 0;
+  }
+
+  .theme-paper .editorial-divider-strong {
+    height: 1px;
+    background: var(--ink);
+    border: 0;
+  }
+
+  .theme-paper .eyebrow-track {
+    font-family: var(--font-sans, system-ui), sans-serif;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .theme-paper .eyebrow-track--strong {
+    color: var(--ink);
+  }
+
+  .theme-paper .eyebrow-track--coral {
+    color: var(--coral);
+  }
+
+  .theme-paper .display-serif {
+    font-family: var(--font-serif, 'Playfair Display', serif);
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 1.04;
+    color: var(--ink);
+  }
+
+  [lang='ar'] .theme-paper .display-serif,
+  .theme-paper [lang='ar'] .display-serif {
+    font-family: var(--font-arabic-serif, 'Amiri', serif);
+    line-height: 1.18;
+    letter-spacing: 0;
+  }
+
+  .theme-paper .meta-mono {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--ink-mute);
+  }
+
+  .theme-paper .rail-text {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    writing-mode: vertical-rl;
+    white-space: nowrap;
+  }
+
+  .theme-paper .shadow-paper {
+    box-shadow: 0 30px 60px -30px rgba(21, 20, 15, 0.18);
+  }
+
+  .theme-paper .surface-bone {
+    background: var(--bone);
+    border: 1px solid var(--line);
+  }
+
+  .theme-paper .surface-paper-warm {
+    background: var(--paper-warm);
+    border: 1px solid var(--line-soft);
+  }
+
+  /* Reveal-up stagger — children with [data-reveal] animate in sequence.
+   * Honors prefers-reduced-motion (handled by the theme.animation token). */
+  .theme-paper [data-reveal] {
+    animation: reveal-up 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+    animation-delay: var(--reveal-delay, 0ms);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .theme-paper [data-reveal] {
+      animation: none;
+      opacity: 1;
+    }
+  }
+
+  /* Marquee ticker for the "from the field" coordinates strip. */
+  .theme-paper .ticker-track {
+    display: inline-flex;
+    gap: 3rem;
+    animation: ticker 40s linear infinite;
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .theme-paper .ticker-track {
+      animation: none;
     }
   }
 }

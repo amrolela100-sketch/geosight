@@ -43,6 +43,139 @@
       }
     }
   },
+  "Editorial": {
+    "masthead": {
+      "volume": "GS / 2026",
+      "issue": "VOL 01 · Nº 04",
+      "live": "Live intelligence",
+      "license": "Arabic-first GEO operations"
+    },
+    "sections": {
+      "about": "About",
+      "capabilities": "Capabilities",
+      "method": "Method",
+      "lab": "Lab",
+      "contact": "Contact"
+    },
+    "rail": {
+      "left": "Generative engine observatory",
+      "right": "Arabic visibility index"
+    },
+    "ticker": {
+      "0": "Riyadh",
+      "1": "Dubai",
+      "2": "Cairo",
+      "3": "Doha",
+      "4": "Jeddah",
+      "5": "Kuwait",
+      "6": "Amman",
+      "7": "Beirut",
+      "8": "Manama",
+      "9": "Muscat"
+    },
+    "about": {
+      "title": "The operating desk for how Arabic brands appear in AI answers.",
+      "lede": "GeoSight tracks the prompts, providers, dialects, competitors, citations, and sentiment that decide whether your brand is visible when buyers ask AI for recommendations.",
+      "manifesto": "Search is becoming conversational, regional, and model-mediated. Arabic brands need more than keyword ranks; they need a living readout of how AI systems explain the market, which competitors they trust, and what sources shape the answer."
+    },
+    "capabilities": {
+      "title": "Built for the teams who need to read the signal before the market does.",
+      "items": {
+        "0": {
+          "tag": "01",
+          "name": "Provider visibility",
+          "body": "Compare how ChatGPT, Gemini, and Perplexity mention your brand across priority prompts."
+        },
+        "1": {
+          "tag": "02",
+          "name": "Arabic NLP",
+          "body": "Normalize MSA, Gulf, Levantine, and Egyptian phrasing before scoring brand presence."
+        },
+        "2": {
+          "tag": "03",
+          "name": "Competitor context",
+          "body": "See which rivals appear beside you, who is cited, and where share of voice is shifting."
+        },
+        "3": {
+          "tag": "04",
+          "name": "Executive reporting",
+          "body": "Turn scans into clean operating metrics for marketing, founders, and agency clients."
+        }
+      }
+    },
+    "method": {
+      "title": "A measurement loop for generative search.",
+      "subtitle": "Prompt → dialect → entity → score",
+      "steps": {
+        "0": {
+          "tag": "01",
+          "name": "Prompt interpretation",
+          "body": "Run the questions your buyers actually ask, grouped by market and intent."
+        },
+        "1": {
+          "tag": "02",
+          "name": "Dialect normalization",
+          "body": "Unify Arabic variants so visibility is measured consistently."
+        },
+        "2": {
+          "tag": "03",
+          "name": "Brand detection",
+          "body": "Match names, aliases, transliterations, and fuzzy Arabic mentions."
+        },
+        "3": {
+          "tag": "04",
+          "name": "Visibility scoring",
+          "body": "Score mentions, rank, citations, sentiment, and competitor pressure."
+        }
+      }
+    },
+    "lab": {
+      "title": "Current product lab.",
+      "subtitle": "What is shipping into the dashboard now.",
+      "items": {
+        "0": {
+          "tag": "L01",
+          "name": "Dashboard overview",
+          "status": "In progress",
+          "body": "Real scan metrics, trend charts, provider breakdowns, and empty states."
+        },
+        "1": {
+          "tag": "L02",
+          "name": "Keyword operations",
+          "status": "Next",
+          "body": "A focused workspace for prompts, schedules, dialects, and scan health."
+        },
+        "2": {
+          "tag": "L03",
+          "name": "Scan detail",
+          "status": "Next",
+          "body": "Provider answers, extracted entities, citations, and parser confidence."
+        },
+        "3": {
+          "tag": "L04",
+          "name": "Competitors",
+          "status": "Next",
+          "body": "Share of voice, co-mentions, citation overlap, and opportunity gaps."
+        },
+        "4": {
+          "tag": "L05",
+          "name": "Reports",
+          "status": "Queued",
+          "body": "White-label PDFs, scheduled delivery, notifications, and Slack hooks."
+        }
+      }
+    },
+    "contact": {
+      "title": "Bring your Arabic GEO baseline into view.",
+      "subtitle": "Join the waitlist and we will prioritize teams that already track Arabic search, content, or agency reporting."
+    },
+    "footer": {
+      "rights": "© {year} GeoSight. All rights reserved.",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "docs": "Docs"
+    }
+  },
   "Auth": {
     "signIn": {
       "title": "Sign in",

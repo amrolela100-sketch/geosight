@@ -1,5 +1,12 @@
 import { ClerkProvider } from '@clerk/nextjs';
-import { IBM_Plex_Sans_Arabic, Inter, JetBrains_Mono } from 'next/font/google';
+import {
+  Amiri,
+  IBM_Plex_Sans_Arabic,
+  Inter,
+  Inter_Tight,
+  JetBrains_Mono,
+  Playfair_Display,
+} from 'next/font/google';
 import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
@@ -20,6 +27,28 @@ const fontArabic = IBM_Plex_Sans_Arabic({
 const fontSans = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
+  display: 'swap',
+});
+
+const fontDisplay = Inter_Tight({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-display',
+  display: 'swap',
+});
+
+const fontSerif = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-serif',
+  display: 'swap',
+});
+
+const fontArabicSerif = Amiri({
+  subsets: ['arabic'],
+  weight: ['400', '700'],
+  variable: '--font-arabic-serif',
   display: 'swap',
 });
 
@@ -87,7 +116,14 @@ export default async function LocaleLayout({
     <div
       lang={locale}
       dir={direction}
-      className={cn(fontArabic.variable, fontSans.variable, fontMono.variable)}
+      className={cn(
+        fontArabic.variable,
+        fontArabicSerif.variable,
+        fontSans.variable,
+        fontDisplay.variable,
+        fontSerif.variable,
+        fontMono.variable,
+      )}
     >
       <ClerkProvider
         publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? ''}
