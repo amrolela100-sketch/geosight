@@ -233,6 +233,7 @@
       "overview": "Overview",
       "brands": "Brands",
       "keywords": "Keywords",
+      "competitors": "Competitors",
       "settings": "Settings"
     }
   },
@@ -282,12 +283,32 @@
     "empty": "No keywords for this filter.",
     "noBrandsYet": "Add a brand first before creating keywords.",
     "goToBrands": "Go to brands",
+    "ops": {
+      "label": "Keyword operations",
+      "add": "New keyword"
+    },
+    "stats": {
+      "active": { "label": "Active keywords", "hint": "Prompts currently eligible for scheduled scans." },
+      "avgScore": { "label": "Average GEO Score", "hint": "Average score across all keyword scan results." },
+      "mentions": { "label": "Brand mentions", "hint": "Scan results where your brand was detected." },
+      "neverScanned": { "label": "Never scanned", "hint": "Keywords waiting for their first provider response." }
+    },
+    "latest": {
+      "title": "Latest scan results",
+      "subtitle": "Recent provider responses ready for inspection.",
+      "empty": "No scan results yet."
+    },
+    "performance": {
+      "title": "Keyword performance",
+      "subtitle": "Prompt-level visibility, mentions, and scan coverage."
+    },
     "filter": {
       "label": "Filter by brand",
       "all": "All brands"
     },
     "form": {
       "title": "New keyword",
+      "subtitle": "Add a natural-language prompt and choose how GeoSight should scan it.",
       "brand": "Brand",
       "queryText": "Query text",
       "queryTextPlaceholder": "e.g. What is the best web design agency in Riyadh?",
@@ -305,6 +326,10 @@
       "delete": "Delete",
       "deleting": "Deleting...",
       "lastScanned": "Last scanned",
+      "scans": "Scans",
+      "avgScore": "Avg score",
+      "mentions": "Mentions",
+      "openScan": "Open latest scan",
       "confirmDelete": "Delete this keyword? Its scan results will be removed too."
     },
     "languages": {
@@ -332,6 +357,69 @@
       "brand_not_found": "The selected brand is not available.",
       "invalid_id": "Invalid identifier.",
       "internal_error": "Something went wrong. Try again."
+    }
+  },
+  "Competitors": {
+    "label": "Competitive intelligence",
+    "title": "Competitors",
+    "subtitle": "Track which rivals appear beside your brand across AI answers, citations, and provider output.",
+    "stats": {
+      "tracked": { "label": "Tracked rivals", "hint": "Distinct competitors detected in rollups." },
+      "mentions": { "label": "Competitor mentions", "hint": "Total competitor appearances in the current dataset." },
+      "pressure": { "label": "Avg pressure", "hint": "Average competitor share across detected rivals." },
+      "topScore": { "label": "Top score context", "hint": "Average GEO score near the leading rival." }
+    },
+    "trend": {
+      "title": "Competitor mention trend",
+      "subtitle": "Daily competitor pressure from scan rollups.",
+      "mentionsLabel": "Competitor mentions",
+      "empty": "No competitor mentions yet."
+    },
+    "leader": {
+      "title": "Current leader",
+      "subtitle": "The competitor appearing most often in recent rollups.",
+      "copy": "{mentions} mentions with {share} competitor share.",
+      "empty": "No competitor leader yet."
+    },
+    "table": {
+      "mentions": "Mentions",
+      "share": "Share",
+      "score": "Score",
+      "noBrand": "No brand context"
+    },
+    "empty": {
+      "title": "No competitors detected yet",
+      "subtitle": "Run scans on competitor-aware prompts to populate this view."
+    }
+  },
+  "Scans": {
+    "subtitle": "Inspect the provider answer, parser signals, entities, and sanitized raw payload.",
+    "back": "Back to keywords",
+    "yes": "Yes",
+    "no": "No",
+    "none": "None",
+    "metrics": {
+      "score": { "label": "GEO Score", "hint": "Visibility score for this provider response." },
+      "mention": { "label": "Brand mentioned", "hint": "Whether the parser detected the tracked brand." },
+      "rank": { "label": "Mention rank", "hint": "Detected entity rank in the response." },
+      "latency": { "label": "Latency", "hint": "Provider response time captured by the worker." }
+    },
+    "snippet": {
+      "title": "Context snippet",
+      "subtitle": "The most relevant text around the detected brand signal.",
+      "empty": "No context snippet was stored for this scan."
+    },
+    "entities": {
+      "title": "Extracted entities",
+      "subtitle": "Competitors and citations pulled from the provider response.",
+      "competitors": "Competitors",
+      "citations": "Citations",
+      "noCompetitors": "No competitors detected.",
+      "noCitations": "No citations detected."
+    },
+    "raw": {
+      "title": "Sanitized raw payload",
+      "subtitle": "Stored provider metadata with secrets stripped before persistence."
     }
   },
   "Common": {
